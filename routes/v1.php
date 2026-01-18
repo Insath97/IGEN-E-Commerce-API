@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\V1\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Customer\AuthController as CustomerAuthController;
 use App\Http\Controllers\V1\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\V1\OrganizationController;
@@ -30,7 +31,9 @@ Route::prefix('v1/admin')->group(function () {
         Route::get('roles/list', [RoleController::class, 'getAvailableRoles']);
         Route::apiResource('roles', RoleController::class);
 
-      
+
+        // Brand Management
+        Route::apiResource('brands', BrandController::class);
 
         // Organization Management (if needed)
         // Route::apiResource('organizations', OrganizationController::class);
