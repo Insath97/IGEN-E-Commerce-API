@@ -30,7 +30,8 @@ class AdminUserController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                        ->orWhere('email', 'LIKE', "%{$search}%");
+                        ->orWhere('email', 'LIKE', "%{$search}%")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -49,7 +50,7 @@ class AdminUserController extends Controller
                     $q->where('name', $roleName);
                 });
             }
-
+            $query->where('user_type', 'admin');
             $query->orderBy('created_at', 'desc');
             $query->with(['roles' => function ($q) {
                 $q->select('id', 'name');
@@ -106,7 +107,7 @@ class AdminUserController extends Controller
                 ], 403);
             }
 
-            $imagePath = $this->handleFileUpload($request, 'profile_image', null, 'users/profile', $data['email']);
+            $imagePath = $this->handleFileUpload($request, 'profile_image', null, 'users/admin/profile', $data['email']);
             if ($imagePath) {
                 $data['profile_image'] = $imagePath;
             }
@@ -114,6 +115,7 @@ class AdminUserController extends Controller
             $user = User::create([
                 'name' => $data['name'],
                 'username' => $data['username'],
+                'user_type' => 'admin',
                 'email' => $data['email'],
                 'password' => bcrypt($data['password']),
                 'profile_image' => $data['profile_image'] ?? null,
@@ -233,7 +235,7 @@ class AdminUserController extends Controller
             }
 
             $oldImagePath = $user->profile_image;
-            $imagePath = $this->handleFileUpload($request, 'profile_image', $oldImagePath, 'users/profile', $user->email);
+            $imagePath = $this->handleFileUpload($request, 'profile_image', $oldImagePath, 'users/admin/profile', $user->email);
 
             if ($imagePath) {
                 $data['profile_image'] = $imagePath;
@@ -244,6 +246,8 @@ class AdminUserController extends Controller
             } else {
                 unset($data['password']);
             }
+
+            $data['user_type'] = 'admin';
 
             $user->update($data);
             $user->refresh();
@@ -455,7 +459,7 @@ class AdminUserController extends Controller
                 ], 422);
             }
 
-            $imagePath = $this->handleFileUpload($request, 'profile_image', $user->profile_image, 'users/profile', $user->email);
+            $imagePath = $this->handleFileUpload($request, 'profile_image', $user->profile_image, 'users/admin/profile', $user->email);
 
             if ($imagePath) {
                 $user->update(['profile_image' => $imagePath]);

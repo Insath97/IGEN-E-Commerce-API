@@ -28,6 +28,7 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'name' => 'sometimes|string|max:255',
+            'username' => 'sometimes|string|max:255|regex:/^[a-zA-Z0-9._-]+$/|not_regex:/\s/|unique:users,username,' . $userId,
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $userId,
             'password' => 'sometimes|string|min:8|confirmed',
             'password_confirmation' => 'required_with:password|string|min:8',

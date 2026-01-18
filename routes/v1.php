@@ -16,32 +16,25 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1/admin')->group(function () {
-    
+
     // Public admin routes (no auth required)
     Route::post('login', [AdminAuthController::class, 'login']);
-    
+
     // Protected admin routes
     Route::middleware(['auth:api', 'admin.auth'])->group(function () {
         Route::get('me', [AdminAuthController::class, 'me']);
         Route::post('logout', [AdminAuthController::class, 'logout']);
-        
+
         // Permission & Role Management
         Route::apiResource('permissions', PermissionController::class);
         Route::get('roles/list', [RoleController::class, 'getAvailableRoles']);
         Route::apiResource('roles', RoleController::class);
-        
-        // User Management
-        Route::apiResource('users', UserController::class);
-        Route::prefix('users')->group(function () {
-            Route::patch('{id}/activate', [UserController::class, 'activate']);
-            Route::patch('{id}/deactivate', [UserController::class, 'deactivate']);
-            Route::patch('{id}/profile-image', [UserController::class, 'updateProfileImage']);
-            Route::delete('{id}/profile-image', [UserController::class, 'removeProfileImage']);
-        });
-        
+
+      
+
         // Organization Management (if needed)
         // Route::apiResource('organizations', OrganizationController::class);
-        
+
         // Future admin routes will go here:
         // Route::apiResource('products', ProductController::class);
         // Route::apiResource('orders', OrderController::class);
@@ -57,20 +50,20 @@ Route::prefix('v1/admin')->group(function () {
 */
 
 Route::prefix('v1/customer')->group(function () {
-    
+
     // Public customer routes (no auth required)
     Route::post('register', [CustomerAuthController::class, 'register']);
     Route::post('login', [CustomerAuthController::class, 'login']);
-    
+
     // Protected customer routes
     Route::middleware(['auth:api', 'customer.auth'])->group(function () {
         Route::get('me', [CustomerAuthController::class, 'me']);
         Route::post('logout', [CustomerAuthController::class, 'logout']);
-        
+
         // Profile Management
         Route::get('profile', [CustomerProfileController::class, 'show']);
         Route::put('profile', [CustomerProfileController::class, 'update']);
-        
+
         // Future customer routes will go here:
         // Route::get('products', [ProductController::class, 'index']);
         // Route::get('products/{id}', [ProductController::class, 'show']);

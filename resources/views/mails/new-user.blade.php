@@ -9,14 +9,6 @@
 
     <p><strong>Role:</strong> {{ $role }}</p>
 
-    @if($organization_name)
-    <p><strong>Organization:</strong> {{ $organization_name }}</p>
-    @endif
-
-    @if($branch_name)
-    <p><strong>Branch:</strong> {{ $branch_name }}</p>
-    @endif
-
     <p>Here are your login credentials:</p>
     <p>
         <strong>Email:</strong> {{ $user['email'] }}<br>

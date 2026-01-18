@@ -44,8 +44,6 @@ class UserCreateMail extends Mailable
                 'user' => $this->data['user'],
                 'password' => $this->data['password'],
                 'role' => $this->data['role'],
-                'organization_name' => $this->data['organization_name'] ?? null,
-                'branch_name' => $this->data['branch_name'] ?? null,
                 'created_by' => $this->data['created_by'],
             ]
         );
