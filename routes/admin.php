@@ -3,6 +3,7 @@
 use App\Http\Controllers\V1\Admin\AdminUserController;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\BrandController;
+use App\Http\Controllers\V1\Admin\CategoryController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -40,5 +41,15 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}/logo', [BrandController::class, 'removeLogo']);
         Route::post('{id}/restore', [BrandController::class, 'restore']);
         Route::patch('{id}/toggle-featured', [BrandController::class, 'toggleFeatured']);
+    });
+
+    Route::apiResource('categories', CategoryController::class);
+    Route::prefix('categories')->group(function () {
+        Route::patch('{id}/activate', [CategoryController::class, 'activate']);
+        Route::patch('{id}/deactivate', [CategoryController::class, 'deactivate']);
+        Route::patch('{id}/toggle-featured', [CategoryController::class, 'toggleFeatured']);
+        Route::delete('{id}/force', [CategoryController::class, 'forceDestroy']);
+        Route::post('{id}/restore', [CategoryController::class, 'restore']);
+        Route::post('bulk-actions', [CategoryController::class, 'bulkActions']);
     });
 });
