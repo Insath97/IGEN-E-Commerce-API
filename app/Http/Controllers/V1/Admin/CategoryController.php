@@ -372,4 +372,31 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    public function activeList(Request $request)
+    {
+        try {
+            $categories = Category::active()->ordered()->get(['id', 'name', 'slug']);
+
+            if ($categories->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No active categories found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Active categories retrieved successfully',
+                'data' => $categories
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve active categories',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
 }

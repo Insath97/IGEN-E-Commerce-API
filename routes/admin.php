@@ -51,5 +51,6 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}/force', [CategoryController::class, 'forceDestroy']);
         Route::post('{id}/restore', [CategoryController::class, 'restore']);
         Route::post('bulk-actions', [CategoryController::class, 'bulkActions']);
+        Route::get('active/list', [CategoryController::class, 'activeList']);
     });
 });
