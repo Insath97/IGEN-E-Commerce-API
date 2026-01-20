@@ -4,6 +4,7 @@ use App\Http\Controllers\V1\Admin\AdminUserController;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
+use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -52,5 +53,24 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::post('{id}/restore', [CategoryController::class, 'restore']);
         Route::post('bulk-actions', [CategoryController::class, 'bulkActions']);
         Route::get('active/list', [CategoryController::class, 'activeList']);
+    });
+
+    Route::apiResource('products', ProductController::class);
+    Route::prefix('products')->group(function () {
+        Route::post('{id}/restore', [ProductController::class, 'restore']);
+        Route::delete('{id}/force', [ProductController::class, 'forceDestroy']);
+        Route::patch('{id}/activate', [ProductController::class, 'activate']);
+        Route::patch('{id}/deactivate', [ProductController::class, 'deactivate']);
+        Route::patch('{id}/primary-image', [ProductController::class, 'updatePrimaryImage']);
+        Route::delete('{id}/primary-image', [ProductController::class, 'removePrimaryImage']);
+        Route::patch('{id}/publish', [ProductController::class, 'publish']);
+        Route::patch('{id}/archive', [ProductController::class, 'archive']);
+        Route::patch('{id}/set-draft', [ProductController::class, 'setAsDraft']);
+        Route::patch('{id}/toggle-trending', [ProductController::class, 'toggleTrending']);
+        Route::patch('{id}/toggle-featured', [ProductController::class, 'toggleFeatured']);
+        Route::patch('variants/{id}/activate', [ProductController::class, 'activateVariant']);
+        Route::patch('variants/{id}/deactivate', [ProductController::class, 'deactivateVariant']);
+        Route::get('get/tags', [ProductController::class, 'getTags']);
+        Route::get('get/features', [ProductController::class, 'getFeatures']);
     });
 });

@@ -6,4 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1/public')->group(function () {
     // Public routes can be defined here
     Route::get('featured-brands', [PublicController::class, 'featuredBrands']);
+
+    Route::get('products', [PublicController::class, 'productsGetAll']);
+    Route::get('products/{id}', [PublicController::class, 'ProductById']);
 });
