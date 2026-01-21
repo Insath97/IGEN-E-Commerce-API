@@ -28,6 +28,7 @@ class ProductVariant extends Model
         'is_trending',
         'is_active',
         'is_featured',
+        'condition',
         'created_by'
     ];
 
@@ -80,6 +81,11 @@ class ProductVariant extends Model
     public function scopeLowStock($query)
     {
         return $query->whereColumn('stock_quantity', '<=', 'low_stock_threshold');
+    }
+
+    public function scopeCondition($query, $condition)
+    {
+        return $query->where('condition', $condition);
     }
 
     public function scopeOnOffer($query)

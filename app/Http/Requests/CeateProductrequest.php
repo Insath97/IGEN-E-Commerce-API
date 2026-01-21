@@ -78,6 +78,7 @@ class CeateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
+            'variants.*.condition' => 'nullable|in:new,used,refurbished',
 
             // Relationships
             'compatible_product_ids' => 'nullable|integer|exists:products,id',

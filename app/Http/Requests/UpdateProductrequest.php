@@ -134,6 +134,7 @@ class UpdateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
+            'variants.*.condition' => 'sometimes|nullable|in:new,used,refurbished',
 
             // Relationships (comma-separated strings)
             'compatible_product_ids' => 'nullable|string|max:1000',

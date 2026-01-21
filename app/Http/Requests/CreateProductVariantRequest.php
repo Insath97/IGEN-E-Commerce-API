@@ -40,6 +40,7 @@ class CreateProductVariantRequest extends FormRequest
             'is_trending' => 'boolean',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'condition' => 'nullable|in:new,used,refurbished',
         ];
     }
 

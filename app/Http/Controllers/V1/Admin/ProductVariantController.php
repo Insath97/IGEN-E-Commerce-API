@@ -38,6 +38,10 @@ class ProductVariantController extends Controller
                 $query->where('is_featured', $request->boolean('is_featured'));
             }
 
+            if ($request->has('condition')) {
+                $query->where('condition', $request->condition);
+            }
+
             $variants = $query->paginate($perPage);
 
             return response()->json([

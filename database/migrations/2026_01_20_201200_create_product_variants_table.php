@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->string('variant_name')->nullable();
+            $table->enum('condition', ['new', 'used', 'refurbished'])->default('new');
             $table->string('sku')->unique();
             $table->string('barcode')->unique()->nullable();
             $table->string('storage_size');
