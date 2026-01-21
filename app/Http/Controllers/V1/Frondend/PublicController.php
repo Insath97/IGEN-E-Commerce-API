@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Frondend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -42,6 +43,36 @@ class PublicController extends Controller
             ], 500);
         }
     }
+
+    public function getCategories()
+    {
+        try {
+            $catecoreies = Category::active()
+                ->ordered()
+                ->get()->map->only(['id', 'name', 'slug']);
+
+            if ($catecoreies->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No categories found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Categories retrieved successfully',
+                'data' => $catecoreies
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve categories',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function productsGetAll(Request $request)
     {
