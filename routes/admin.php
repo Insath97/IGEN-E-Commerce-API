@@ -5,6 +5,7 @@ use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
 use App\Http\Controllers\V1\Admin\ProductController;
+use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -68,9 +69,17 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/set-draft', [ProductController::class, 'setAsDraft']);
         Route::patch('{id}/toggle-trending', [ProductController::class, 'toggleTrending']);
         Route::patch('{id}/toggle-featured', [ProductController::class, 'toggleFeatured']);
-        Route::patch('variants/{id}/activate', [ProductController::class, 'activateVariant']);
-        Route::patch('variants/{id}/deactivate', [ProductController::class, 'deactivateVariant']);
         Route::get('get/tags', [ProductController::class, 'getTags']);
         Route::get('get/features', [ProductController::class, 'getFeatures']);
+    });
+
+    Route::apiResource('product-variants', ProductVariantController::class);
+    Route::prefix('product-variants')->group(function () {
+        Route::patch('{id}/activate', [ProductVariantController::class, 'activate']);
+        Route::patch('{id}/deactivate', [ProductVariantController::class, 'deactivate']);
+        Route::post('{id}/restore', [ProductVariantController::class, 'restore']);
+        Route::delete('{id}/force', [ProductVariantController::class, 'forceDestroy']);
+        Route::patch('{id}/toggle-active', [ProductVariantController::class, 'toggleActive']);
+        Route::patch('{id}/toggle-featured', [ProductVariantController::class, 'toggleFeatured']);
     });
 });
