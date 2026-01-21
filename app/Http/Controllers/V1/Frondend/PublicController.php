@@ -73,7 +73,6 @@ class PublicController extends Controller
         }
     }
 
-
     public function productsGetAll(Request $request)
     {
         try {
