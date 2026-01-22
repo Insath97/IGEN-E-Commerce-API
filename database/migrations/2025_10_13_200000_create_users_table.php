@@ -18,12 +18,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->enum('user_type', ['customer', 'admin']);
             $table->string('profile_image')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_active')->default(true);
             $table->boolean('can_login')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->string('last_login_ip')->nullable();
+            $table->string('email_verification_token')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('email_verification_token_expires_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

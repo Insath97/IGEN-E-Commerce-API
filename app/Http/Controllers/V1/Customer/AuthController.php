@@ -4,40 +4,26 @@ namespace App\Http\Controllers\V1\Customer;
 
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CustomerRegistrationRequest;
+use App\Mail\CustomerWelcomeMail;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
-     * Customer Registration
+     * Customer Registration with Email Verification
      */
-    public function register(Request $request): JsonResponse
+    public function register(CustomerRegistrationRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string|max:15',
-            'address_line_1' => 'required|string',
-            'city' => 'required|string',
-            'state' => 'required|string',
-            'postal_code' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         DB::beginTransaction();
         try {
             // Create user
@@ -46,7 +32,7 @@ class AuthController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'user_type' => UserType::CUSTOMER,
+                'user_type' => 'customer',
                 'is_active' => true,
                 'can_login' => true
             ]);
@@ -66,28 +52,31 @@ class AuthController extends Controller
                 'postal_code' => $request->postal_code,
             ]);
 
-            DB::commit();
+            // Generate email verification token
+            $token = $user->generateEmailVerificationToken();
 
-            // Generate token
-            $token = auth()->login($user);
+            // Create verification URL pointing to frontend
+            $verificationUrl = config('app.frontend_url') . '/verify-email?token=' . $token;
+
+            // Send welcome email with verification link
+            Mail::to($user->email)->send(new CustomerWelcomeMail($user->name, $verificationUrl));
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Registration successful',
+                'message' => 'Registration successful! Please check your email to verify your account.',
                 'data' => [
-                    'access_token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => auth()->factory()->getTTL() * 60,
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
                         'username' => $user->username,
-                        'user_type' => $user->user_type->value
-                    ]
+                        'email_verified' => false
+                    ],
+                    'verification_sent' => true
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -101,6 +90,7 @@ class AuthController extends Controller
     /**
      * Customer Login
      * Only users with user_type = 'customer' can login here
+     * Email verification is required
      */
     public function login(Request $request): JsonResponse
     {
@@ -122,27 +112,38 @@ class AuthController extends Controller
             : ['username' => $request->login, 'password' => $request->password];
 
         // Attempt authentication
-        if (!$token = auth()->attempt($credentials)) {
+        if (!$token = Auth::guard('api')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials'
             ], 401);
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         // SECURITY CHECK 1: Verify user type
-        if ($user->user_type !== UserType::CUSTOMER) {
-            auth()->logout();
+        if ($user->user_type !== 'customer') {
+            Auth::guard('api')->logout();
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied. Please use admin login portal.'
+                'message' => 'Access denied. Please use customer login portal.'
             ], 403);
         }
 
-        // SECURITY CHECK 2: Verify user can login
+        // SECURITY CHECK 2: Verify email is verified
+        if (!$user->hasVerifiedEmail()) {
+            Auth::guard('api')->logout();
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify your email address before logging in. Check your inbox for the verification link.',
+                'email_verified' => false,
+                'email' => $user->email
+            ], 403);
+        }
+
+        // SECURITY CHECK 3: Verify user can login
         if (!$user->canLogin()) {
-            auth()->logout();
+            Auth::guard('api')->logout();
             return response()->json([
                 'success' => false,
                 'message' => 'Your account has been deactivated. Please contact support.'
@@ -152,22 +153,36 @@ class AuthController extends Controller
         // Update last login
         $user->updateLastLogin($request->ip());
 
+        // Create secure HTTP-only cookie
+        $cookie = cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7, // 7 days
+            '/',
+            null,
+            true,  // Secure
+            true,  // HttpOnly
+            false,
+            'lax'
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60,
+                'expires_in' => config('jwt.ttl') * 60,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'username' => $user->username,
-                    'user_type' => $user->user_type->value
+                    'user_type' => $user->user_type,
+                    'email_verified' => true
                 ]
             ]
-        ]);
+        ])->cookie($cookie);
     }
 
     /**
@@ -175,7 +190,7 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        $user = auth()->user();
+        $user = auth('api')->user();
         $customer = $user->customer;
 
         return response()->json([
@@ -185,9 +200,10 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'username' => $user->username,
-                'user_type' => $user->user_type->value,
+                'user_type' => $user->user_type,
                 'profile_image' => $user->profile_image,
                 'last_login_at' => $user->last_login_at,
+                'email_verified' => $user->hasVerifiedEmail(),
                 'customer_profile' => $customer ? [
                     'phone' => $customer->phone,
                     'whatsapp_contact' => $customer->whatsapp_contact,
@@ -200,15 +216,161 @@ class AuthController extends Controller
     }
 
     /**
-     * Customer Logout
+     * Verify customer email address
      */
-    public function logout(): JsonResponse
+    public function verifyEmail(Request $request): JsonResponse
     {
-        auth()->logout();
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Find user by verification token
+        $user = User::where('email_verification_token', $request->token)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification token.'
+            ], 400);
+        }
+
+        // Check if already verified
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email already verified. You can login now.'
+            ], 400);
+        }
+
+        // Validate token expiration
+        if (!$user->isEmailVerificationTokenValid($request->token)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification token has expired. Please request a new verification email.',
+                'token_expired' => true
+            ], 400);
+        }
+
+        // Mark email as verified
+        $user->markEmailAsVerified();
+
+        // Auto-login user after verification
+        $token = Auth::guard('api')->login($user);
+
+        // Create secure HTTP-only cookie
+        $cookie = cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7, // 7 days
+            '/',
+            null,
+            true,  // Secure
+            true,  // HttpOnly
+            false,
+            'lax'
+        );
 
         return response()->json([
             'success' => true,
-            'message' => 'Successfully logged out'
+            'message' => 'Email verified successfully! You are now logged in.',
+            'data' => [
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => config('jwt.ttl') * 60,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'username' => $user->username,
+                    'user_type' => $user->user_type,
+                    'email_verified' => true
+                ]
+            ]
+        ])->cookie($cookie);
+    }
+
+    /**
+     * Resend email verification link
+     */
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Find user by email
+        $user = User::where('email', $request->email)
+            ->where('user_type', 'customer')
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email address.'
+            ], 404);
+        }
+
+        // Check if already verified
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email already verified. You can login now.'
+            ], 400);
+        }
+
+        // Generate new verification token
+        $token = $user->generateEmailVerificationToken();
+
+        // Create verification URL
+        $verificationUrl = config('app.frontend_url') . '/verify-email?token=' . $token;
+
+        // Send verification email
+        Mail::to($user->email)->send(new CustomerWelcomeMail($user->name, $verificationUrl));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification email sent successfully! Please check your inbox.',
+            'email' => $user->email
+        ]);
+    }
+
+    /**
+     * Customer Logout
+     */
+    public function logout(Request $request)
+    {
+        try {
+
+            // Logout the user (invalidates the token)
+            Auth::guard('api')->logout();
+
+            // Create an expired cookie to remove it from browser
+            $cookie = Cookie::forget('auth_token');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout successful'
+            ], 200)->withCookie($cookie);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to logout',
+                'error' => $th->getMessage()
+            ], 500);
+        }
     }
 }

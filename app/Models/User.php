@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +11,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     use HasFactory, Notifiable, HasRoles;
 
@@ -30,7 +30,10 @@ class User extends Authenticatable implements JWTSubject
         'can_login',
         'profile_image',
         'last_login_at',
-        'last_login_ip'
+        'last_login_ip',
+        'email_verified_at',
+        'email_verification_token',
+        'email_verification_token_expires_at'
     ];
 
     /**
@@ -52,6 +55,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
+            'email_verification_token_expires_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
@@ -111,5 +115,56 @@ class User extends Authenticatable implements JWTSubject
     public function isAdmin()
     {
         return $this->user_type === 'admin';
+    }
+
+    /**
+     * Generate a unique email verification token
+     */
+    public function generateEmailVerificationToken(): string
+    {
+        $token = bin2hex(random_bytes(32));
+        
+        $this->update([
+            'email_verification_token' => $token,
+            'email_verification_token_expires_at' => now()->addHours(24)
+        ]);
+
+        return $token;
+    }
+
+    /**
+     * Mark the user's email as verified
+     */
+    public function markEmailAsVerified(): void
+    {
+        $this->update([
+            'email_verified_at' => now(),
+            'email_verification_token' => null,
+            'email_verification_token_expires_at' => null
+        ]);
+    }
+
+    /**
+     * Check if the user's email verification token is valid
+     */
+    public function isEmailVerificationTokenValid(string $token): bool
+    {
+        if ($this->email_verification_token !== $token) {
+            return false;
+        }
+
+        if (!$this->email_verification_token_expires_at) {
+            return false;
+        }
+
+        return now()->lessThan($this->email_verification_token_expires_at);
+    }
+
+    /**
+     * Check if the user has verified their email
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        return !is_null($this->email_verified_at);
     }
 }

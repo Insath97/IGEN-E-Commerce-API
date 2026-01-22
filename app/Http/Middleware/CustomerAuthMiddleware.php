@@ -24,15 +24,16 @@ class CustomerAuthMiddleware
             ], 401);
         }
 
-        $user = Auth::auth('api')->user();
+        $user = Auth::guard('api')->user();
 
         // CRITICAL: Verify user_type from token claims
-        $tokenUserType = Auth::auth('api')->payload()->get('user_type');
+        $tokenUserType = Auth::guard('api')->payload()->get('user_type');
 
         if ($tokenUserType !== 'customer') {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied. Customer authentication required.'
+                'message' => 'Access denied. Customer authentication required.',
+                'user_type_in_token' => $tokenUserType
             ], 403);
         }
 
