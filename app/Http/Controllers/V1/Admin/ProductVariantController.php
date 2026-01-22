@@ -96,7 +96,8 @@ class ProductVariantController extends Controller
             if (!$variant) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Product variant not found'
+                    'message' => 'Product variant not found',
+                    'data' => []
                 ], 404);
             }
 
@@ -248,7 +249,6 @@ class ProductVariantController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant activated successfully',
-                'data' => $variant
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -283,7 +283,6 @@ class ProductVariantController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant deactivated successfully',
-                'data' => $variant
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -315,7 +314,6 @@ class ProductVariantController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => "Product variant {$status} successfully",
-                'data' => $variant
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -345,7 +343,6 @@ class ProductVariantController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => "Product variant {$status} successfully",
-                'data' => $variant
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -375,7 +372,6 @@ class ProductVariantController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => "Product variant set to {$status} successfully",
-                'data' => $variant
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

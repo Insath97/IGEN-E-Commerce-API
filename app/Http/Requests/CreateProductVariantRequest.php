@@ -27,7 +27,7 @@ class CreateProductVariantRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'variant_name' => 'nullable|string|max:255',
             'sku' => 'required|string|max:100|unique:product_variants,sku',
-            'barcode' => 'nullable|string|max:100',
+            'barcode' => 'nullable|string|max:100|unique:product_variants,barcode',
             'storage_size' => 'nullable|string|max:50',
             'ram_size' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',

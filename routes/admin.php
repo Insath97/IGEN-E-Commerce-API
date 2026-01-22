@@ -81,5 +81,6 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}/force', [ProductVariantController::class, 'forceDestroy']);
         Route::patch('{id}/toggle-active', [ProductVariantController::class, 'toggleActive']);
         Route::patch('{id}/toggle-featured', [ProductVariantController::class, 'toggleFeatured']);
+        Route::patch('{id}/toggle-trending', [ProductVariantController::class, 'toggleTrending']);
     });
 });
