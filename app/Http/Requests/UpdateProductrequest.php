@@ -41,9 +41,9 @@ class UpdateProductrequest extends FormRequest
             'full_description' => 'nullable|string',
 
             // Images
-            'primary_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'primary_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp',
 
             // Status flags
             'is_trending' => 'nullable|boolean',

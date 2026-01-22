@@ -42,9 +42,9 @@ class CeateProductrequest extends FormRequest
             'full_description' => 'nullable|string',
 
             // Images
-            'primary_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
+            'primary_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp',
 
             // Status flags
             'is_trending' => 'nullable|boolean',
