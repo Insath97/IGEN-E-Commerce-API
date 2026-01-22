@@ -44,6 +44,14 @@ class ProductVariantController extends Controller
 
             $variants = $query->paginate($perPage);
 
+            if ($variants->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No variants found',
+                    'data' => []
+                ], 200);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variants retrieved successfully',
