@@ -18,6 +18,8 @@ return new class extends Migration
             $table->enum('condition', ['new', 'used', 'refurbished'])->default('new');
             $table->string('sku')->unique();
             $table->string('barcode')->unique()->nullable();
+            $table->string('imei')->unique()->nullable();
+            $table->string('warranty_period')->nullable();
             $table->string('storage_size');
             $table->string('ram_size');
             $table->string('color');

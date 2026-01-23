@@ -467,26 +467,16 @@ class AuthController extends Controller
                 'lax'
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Google login successful',
-                'data' => [
-                    'access_token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => config('jwt.ttl') * 60,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'username' => $user->username,
-                        'user_type' => $user->user_type,
-                        'email_verified' => $user->hasVerifiedEmail(),
-                        'profile_image' => $googleUser->getAvatar(),
-                        'is_social_login' => true,
-                        'provider' => 'google'
-                    ]
-                ]
-            ])->cookie($cookie);
+            // Verify if the request is from a frontend client expecting a redirect
+            // For now, we assume this flow is always for the frontend.
+
+            $frontendUrl = config('app.frontend_url');
+
+            // Append token to frontend URL
+            // Ensure your frontend has a route to handle this: /auth/google/callback?token=...
+            $redirectUrl = $frontendUrl . '/auth/google/callback?token=' . $token . '&role=customer' . '&verified=true';
+
+            return redirect($redirectUrl)->withCookie($cookie);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

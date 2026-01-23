@@ -122,6 +122,36 @@ class UpdateProductrequest extends FormRequest
                     }
                 }
             ],
+            'variants.*.imei' => [
+                'nullable',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) use ($productId) {
+                    // Clean the value first
+                    $value = $this->cleanStringValue($value);
+
+                    if (empty($value)) return;
+
+                    $index = $this->extractArrayIndex($attribute);
+                    $variantId = $this->input("variants.{$index}.id") ?? null;
+
+                    $query = ProductVariant::where('imei', $value);
+
+                    if ($variantId) {
+                        $query->where('id', '!=', $variantId);
+                    }
+
+                    // Also exclude variants from the same product
+                    $query->whereHas('product', function ($q) use ($productId) {
+                        $q->where('id', '!=', $productId);
+                    });
+
+                    if ($query->exists()) {
+                        $fail("The IMEI '{$value}' has already been taken in another product.");
+                    }
+                }
+            ],
+            'variants.*.warranty_period' => 'sometimes|string|max:100',
             'variants.*.storage_size' => 'sometimes|string|max:50',
             'variants.*.ram_size' => 'sometimes|string|max:50',
             'variants.*.color' => 'sometimes|string|max:50',

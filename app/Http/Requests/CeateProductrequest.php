@@ -66,6 +66,8 @@ class CeateProductrequest extends FormRequest
             'variants.*.variant_name' => 'nullable|string|max:255',
             'variants.*.sku' => 'required_with:variants|string|max:100|unique:product_variants,sku',
             'variants.*.barcode' => 'nullable|string|max:100|unique:product_variants,barcode',
+            'variants.*.imei' => 'nullable|string|max:100|unique:product_variants,imei',
+            'variants.*.warranty_period' => 'nullable|string|max:100',
             'variants.*.storage_size' => 'required_with:variants|string|max:50',
             'variants.*.ram_size' => 'required_with:variants|string|max:50',
             'variants.*.color' => 'required_with:variants|string|max:50',

@@ -28,6 +28,8 @@ class UpdateProductVariantRequest extends FormRequest
             'variant_name' => 'nullable|string|max:255',
             'sku' => 'sometimes|required|string|max:100|unique:product_variants,sku,' . $id,
             'barcode' => 'nullable|string|max:100|unique:product_variants,barcode,' . $id,
+            'imei' => 'nullable|string|max:100|unique:product_variants,imei,' . $id,
+            'warranty_period' => 'nullable|string|max:100',
             'storage_size' => 'nullable|string|max:50',
             'ram_size' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:50',

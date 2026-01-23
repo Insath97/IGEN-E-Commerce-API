@@ -16,6 +16,8 @@ class ProductVariant extends Model
         'variant_name',
         'sku',
         'barcode',
+        'imei',
+        'warranty_period',
         'storage_size',
         'ram_size',
         'color',
