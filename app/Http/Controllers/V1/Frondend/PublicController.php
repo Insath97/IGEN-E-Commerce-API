@@ -78,11 +78,15 @@ class PublicController extends Controller
         try {
             $perPage = $request->get('per_page', 15);
 
-            $query = Product::with([
+            $query = Product::select([
+                'id', 'name', 'slug', 'code', 'category_id', 'brand_id', 'type', 
+                'short_description', 'full_description', 'primary_image_path', 
+                'price', 'sale_price', 'status', 'is_trending', 'is_active', 'is_featured'
+            ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants',
+                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured,condition',
                 'features:id,name',
                 'specifications:id,product_id,specification_name,specification_value',
                 'tags:id,name,slug',
@@ -161,11 +165,15 @@ class PublicController extends Controller
     public function ProductById(string $id)
     {
         try {
-            $product = Product::with([
+            $product = Product::select([
+                'id', 'name', 'slug', 'code', 'category_id', 'brand_id', 'type', 
+                'short_description', 'full_description', 'primary_image_path', 
+                'price', 'sale_price', 'status', 'is_trending', 'is_active', 'is_featured'
+            ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants',
+                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured,condition',
                 'features:id,name',
                 'specifications:id,product_id,specification_name,specification_value',
                 'tags:id,name,slug',

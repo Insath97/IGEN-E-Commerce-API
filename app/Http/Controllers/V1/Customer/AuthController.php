@@ -5,10 +5,12 @@ namespace App\Http\Controllers\V1\Customer;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerRegistrationRequest;
+use App\Http\Requests\UpdateCustomerProfileRequest;
 use App\Mail\CustomerWelcomeMail;
 use App\Models\Customer;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +23,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
+    use FileUploadTrait;
     /**
      * Customer Registration with Email Verification
      */
@@ -28,12 +31,14 @@ class AuthController extends Controller
     {
         DB::beginTransaction();
         try {
+
+            $data = $request->validated();
             // Create user
             $user = User::create([
-                'name' => $request->name,
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name' => $data["name"],
+                'username' => $data["username"],
+                'email' => $data["email"],
+                'password' => Hash::make($data["password"]),
                 'user_type' => 'customer',
                 'is_active' => true,
                 'can_login' => true
@@ -42,16 +47,16 @@ class AuthController extends Controller
             // Create customer profile
             $customer = Customer::create([
                 'user_id' => $user->id,
-                'phone' => $request->phone,
-                'have_whatsapp' => $request->have_whatsapp ?? false,
-                'whatsapp_number' => $request->whatsapp_number,
-                'address_line_1' => $request->address_line_1,
-                'address_line_2' => $request->address_line_2,
-                'landmark' => $request->landmark,
-                'city' => $request->city,
-                'state' => $request->state,
-                'country' => $request->country ?? 'Sri Lanka',
-                'postal_code' => $request->postal_code,
+                'phone' =>$data["phone"],
+                'have_whatsapp' => $data["have_whatsapp"] ?? false,
+                'whatsapp_number' => $data["whatsapp_number"],
+                'address_line_1' => $data["address_line_1"],
+                'address_line_2' => $data["address_line_2"],
+                'landmark' => $data["landmark"],
+                'city' => $data["city"],
+                'state' => $data["state"],
+                'country' => $data["country"] ?? 'Sri Lanka',
+                'postal_code' => $data["postal_code"],
             ]);
 
             // Generate email verification token
@@ -188,6 +193,91 @@ class AuthController extends Controller
     }
 
     /**
+     * Update customer profile
+     */
+    public function updateProfile(UpdateCustomerProfileRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $user = auth('api')->user();
+            $customer = $user->customer;
+
+            // Handle User data
+            $userData = $request->only(['name', 'username', 'email']);
+
+            // Handle profile image upload
+            if ($request->hasFile('profile_image')) {
+                $imagePath = $this->handleFileUpload(
+                    $request,
+                    'profile_image',
+                    $user->profile_image,
+                    'profiles/customers/',
+                    $user->username ?? 'customer_' . $user->id
+                );
+                $userData['profile_image'] = $imagePath;
+            }
+
+            if (!empty($userData)) {
+                $user->update($userData);
+            }
+
+            // Handle Customer profile data
+            $customerData = $request->only([
+                'phone', 'have_whatsapp', 'whatsapp_number',
+                'address_line_1', 'address_line_2', 'landmark',
+                'city', 'state', 'country', 'postal_code'
+            ]);
+
+            if ($customer) {
+                $customer->update($customerData);
+            } else {
+                // Should not normally happen if registered correctly, but for safety:
+                $customerData['user_id'] = $user->id;
+                $customer = Customer::create($customerData);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'username' => $user->username,
+                    'profile_image' => $user->profile_image,
+                    'customer_profile' => [
+                        'phone' => $customer->phone,
+                        'whatsapp_number' => $customer->whatsapp_number,
+                        'have_whatsapp' => $customer->have_whatsapp,
+                        'address_line_1' => $customer->address_line_1,
+                        'address_line_2' => $customer->address_line_2,
+                        'landmark' => $customer->landmark,
+                        'city' => $customer->city,
+                        'state' => $customer->state,
+                        'country' => $customer->country,
+                        'postal_code' => $customer->postal_code,
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Cleanup uploaded files if error occurs
+            if (isset($imagePath)) {
+                $this->deleteFile($imagePath);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Profile update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get authenticated customer user
      */
     public function me(): JsonResponse
@@ -261,7 +351,7 @@ class AuthController extends Controller
         }
 
         // Mark email as verified
-        $user->markEmailAsVerified();
+        $user->markEmailAsVerifiedcheck($request->token);
 
         // Auto-login user after verification
         $token = Auth::guard('api')->login($user);

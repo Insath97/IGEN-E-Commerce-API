@@ -23,6 +23,8 @@ Route::prefix('v1/customer')->group(function () {
 Route::middleware(['auth:api', 'customer.auth'])->prefix('v1/customer')->group(function () {
 
     Route::get('me', [AuthController::class, 'me']);
+    
+    Route::post('profile-update', [AuthController::class, 'updateProfile']);
 
     Route::post('logout', [AuthController::class, 'logout']);
 

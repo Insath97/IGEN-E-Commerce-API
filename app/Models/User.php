@@ -135,11 +135,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     /**
      * Mark the user's email as verified
      */
-    public function markEmailAsVerified(): void
+    public function markEmailAsVerifiedcheck(string $token)
     {
         $this->update([
             'email_verified_at' => now(),
-            'email_verification_token' => null,
+            'email_verification_token' => $token,
             'email_verification_token_expires_at' => null
         ]);
     }
@@ -169,12 +169,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     public function socialAccounts()
-    {
-        return $this->hasMany(SocialAccount::class);
-    }
+{
+    return $this->hasMany(SocialAccount::class);
+}
 
-    public function hasSocialAccount($provider)
-    {
-        return $this->socialAccounts()->where('provider', $provider)->exists();
-    }
+public function hasSocialAccount($provider)
+{
+    return $this->socialAccounts()->where('provider', $provider)->exists();
+}
 }
