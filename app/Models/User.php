@@ -123,7 +123,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function generateEmailVerificationToken(): string
     {
         $token = bin2hex(random_bytes(32));
-        
+
         $this->update([
             'email_verification_token' => $token,
             'email_verification_token_expires_at' => now()->addHours(24)
@@ -166,5 +166,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function hasVerifiedEmail(): bool
     {
         return !is_null($this->email_verified_at);
+    }
+
+    public function socialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    public function hasSocialAccount($provider)
+    {
+        return $this->socialAccounts()->where('provider', $provider)->exists();
     }
 }

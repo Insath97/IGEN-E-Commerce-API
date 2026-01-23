@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerRegistrationRequest;
 use App\Mail\CustomerWelcomeMail;
 use App\Models\Customer;
+use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -372,5 +374,226 @@ class AuthController extends Controller
                 'error' => $th->getMessage()
             ], 500);
         }
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    /**
+     * Handle Google Callback
+     */
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+
+            // Check if user exists
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if (!$user) {
+                // Register new user
+                DB::beginTransaction();
+                try {
+                    $user = User::create([
+                        'name' => $googleUser->getName(),
+                        'username' => 'google_' . $googleUser->getId(),
+                        'email' => $googleUser->getEmail(),
+                        'password' => Hash::make(str()->random(24)),
+                        'user_type' => 'customer',
+                        'email_verified_at' => now(),
+                        'is_active' => true,
+                        'can_login' => true,
+                        'google_id' => $googleUser->getId(),
+                        'auth_provider' => 'google'
+                    ]);
+
+                    // Create minimal customer profile
+                    Customer::create([
+                        'user_id' => $user->id,
+                        'is_verified' => true,
+                        'verification_level' => 'basic'
+                    ]);
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Google authentication failed',
+                        'error' => $e->getMessage()
+                    ], 401);
+                }
+            } else {
+                // Update existing user's google_id if missing
+                if (!$user->google_id) {
+                    $user->update([
+                        'google_id' => $googleUser->getId(),
+                        'auth_provider' => 'google',
+                        // verification? If they logged in via Google, we can trust the email.
+                        // But if they had an unverified account, we might verification.
+                        // Let's mark verified if not already.
+                    ]);
+
+                    if (!$user->hasVerifiedEmail()) {
+                        $user->markEmailAsVerified();
+                    }
+                }
+
+                // Ensure customer type
+                if ($user->user_type !== 'customer') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This email is associated with a ' . $user->user_type . ' account, not a customer account.'
+                    ], 403);
+                }
+            }
+
+            // Login
+            $token = Auth::guard('api')->login($user);
+            $user->updateLastLogin(request()->ip());
+
+            // Create secure HTTP-only cookie
+            $cookie = cookie(
+                'auth_token',
+                $token,
+                60 * 24 * 7, // 7 days
+                '/',
+                null,
+                true,  // Secure
+                true,  // HttpOnly
+                false,
+                'lax'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Google login successful',
+                'data' => [
+                    'access_token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => config('jwt.ttl') * 60,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'username' => $user->username,
+                        'user_type' => $user->user_type,
+                        'email_verified' => $user->hasVerifiedEmail(),
+                        'profile_image' => $googleUser->getAvatar(),
+                        'is_social_login' => true,
+                        'provider' => 'google'
+                    ]
+                ]
+            ])->cookie($cookie);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google login failed',
+                'error' => $e->getMessage()
+            ], 401);
+        }
+    }
+
+    /**
+     * Link Google account to existing user
+     */
+    public function linkGoogleAccount(Request $request)
+    {
+        $request->validate([
+            'access_token' => 'required|string'
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            // Get Google user data from access token
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->userFromToken($request->access_token);
+
+            // Check if Google account is already linked to another user
+            $existingAccount = SocialAccount::where('provider', 'google')
+                ->where('provider_id', $googleUser->getId())
+                ->where('user_id', '!=', $user->id)
+                ->first();
+
+            if ($existingAccount) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This Google account is already linked to another user'
+                ], 409);
+            }
+
+            // Link Google account
+            $this->createOrUpdateSocialAccount($user, $googleUser);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Google account linked successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to link Google account',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Unlink Google account
+     */
+    public function unlinkGoogleAccount(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+
+        $socialAccount = SocialAccount::where('user_id', $user->id)
+            ->where('provider', 'google')
+            ->first();
+
+        if (!$socialAccount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No Google account linked'
+            ], 404);
+        }
+
+        // Check if user has password (can't unlink if no password)
+        if (Hash::check('', $user->password) || $user->password === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please set a password before unlinking Google account'
+            ], 400);
+        }
+
+        $socialAccount->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Google account unlinked successfully'
+        ]);
+    }
+
+    /**
+     * Create or update social account
+     */
+    private function createOrUpdateSocialAccount($user, $googleUser)
+    {
+        SocialAccount::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'provider' => 'google',
+                'provider_id' => $googleUser->getId(),
+            ],
+            [
+                'token' => $googleUser->token,
+                'refresh_token' => $googleUser->refreshToken,
+                'expires_at' => now()->addSeconds($googleUser->expiresIn),
+                'avatar' => $googleUser->getAvatar(),
+                'provider_data' => json_encode($googleUser->user),
+            ]
+        );
     }
 }

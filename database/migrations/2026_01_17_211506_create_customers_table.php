@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->boolean('have_whatsapp')->default(false);
             $table->string('whatsapp_number')->nullable();
-            $table->string('address_line_1');
+            $table->string('address_line_1')->nullable();
             $table->string('address_line_2')->nullable();
             $table->string('landmark')->nullable();
-            $table->string('city');
-            $table->string('state');
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
             $table->string('country')->default('Sri Lanka');
-            $table->string('postal_code');
+            $table->string('postal_code')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->timestamp('verified_at')->nullable();
             $table->enum('verification_level', ['basic', 'standard', 'premium'])->default('basic');
