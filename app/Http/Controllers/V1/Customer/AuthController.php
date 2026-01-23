@@ -47,7 +47,7 @@ class AuthController extends Controller
             // Create customer profile
             $customer = Customer::create([
                 'user_id' => $user->id,
-                'phone' =>$data["phone"],
+                'phone' => $data["phone"],
                 'have_whatsapp' => $data["have_whatsapp"] ?? false,
                 'whatsapp_number' => $data["whatsapp_number"],
                 'address_line_1' => $data["address_line_1"],
@@ -199,11 +199,26 @@ class AuthController extends Controller
     {
         DB::beginTransaction();
         try {
+            $data = $request->validated();
+
             $user = auth('api')->user();
             $customer = $user->customer;
 
-            // Handle User data
-            $userData = $request->only(['name', 'username', 'email']);
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'user not found',
+                    'data' => []
+                ], 404);
+            }
+
+            if (!$customer) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'customer not found',
+                    'data' => []
+                ], 404);
+            }
 
             // Handle profile image upload
             if ($request->hasFile('profile_image')) {
@@ -217,15 +232,40 @@ class AuthController extends Controller
                 $userData['profile_image'] = $imagePath;
             }
 
-            if (!empty($userData)) {
-                $user->update($userData);
+            // Handle Password Update
+            if (!empty($data['password'])) {
+                // If user has a password, verify current password
+                // Note: Google auth users usually have a random password set during registration,
+                // so we generally enforce current_password.
+                if (!Hash::check($data['current_password'], $user->password)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Current password does not match'
+                    ], 400);
+                }
+
+                $userData['password'] = Hash::make($data['password']);
             }
+
+            // Update User
+            $userData['name'] = $data['name'] ?? $user->name;
+            $userData['username'] = $data['username'] ?? $user->username;
+            $userData['email'] = $data['email'] ?? $user->email;
+
+            $user->update($userData);
 
             // Handle Customer profile data
             $customerData = $request->only([
-                'phone', 'have_whatsapp', 'whatsapp_number',
-                'address_line_1', 'address_line_2', 'landmark',
-                'city', 'state', 'country', 'postal_code'
+                'phone',
+                'have_whatsapp',
+                'whatsapp_number',
+                'address_line_1',
+                'address_line_2',
+                'landmark',
+                'city',
+                'state',
+                'country',
+                'postal_code'
             ]);
 
             if ($customer) {

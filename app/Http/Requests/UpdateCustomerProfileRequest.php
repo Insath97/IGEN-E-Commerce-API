@@ -34,6 +34,15 @@ class UpdateCustomerProfileRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,webp',
+            
+            // Password update
+            'current_password' => [
+                'nullable', 
+                'required_with:password', 
+                'string'
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+            'password_confirmation' => 'nullable|string|min:8',
 
             // Customer fields
             'phone' => 'sometimes|nullable|string|max:20',
