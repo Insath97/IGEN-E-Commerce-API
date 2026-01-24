@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class cart extends Model
+class Cart extends Model
 {
     use HasFactory;
 
@@ -32,5 +32,10 @@ class cart extends Model
         return $this->belongsTo(User::class);
     }
 
-
+    public function recalculateTotals()
+    {
+        $this->total_amount = $this->items()->sum('total_price');
+        $this->item_count = $this->items()->sum('quantity');
+        $this->save();
+    }
 }

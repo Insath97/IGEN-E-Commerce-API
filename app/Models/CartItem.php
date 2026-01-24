@@ -18,6 +18,25 @@ class CartItem extends Model
         'total_price',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($item) {
+            $item->total_price = $item->quantity * $item->unit_price;
+        });
+
+        static::saved(function ($item) {
+            $item->cart->recalculateTotals();
+        });
+
+        static::deleted(function ($item) {
+            if ($item->cart) {
+                $item->cart->recalculateTotals();
+            }
+        });
+    }
+
     public function cart()
     {
         return $this->belongsTo(Cart::class);

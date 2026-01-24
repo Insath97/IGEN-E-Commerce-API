@@ -177,4 +177,14 @@ public function hasSocialAccount($provider)
 {
     return $this->socialAccounts()->where('provider', $provider)->exists();
 }
+
+public function carts()
+{
+    return $this->hasOne(Cart::class);
+}
+
+public function activeCart()
+{
+    return $this->hasOne(Cart::class)->where('status', 'active');
+}
 }
