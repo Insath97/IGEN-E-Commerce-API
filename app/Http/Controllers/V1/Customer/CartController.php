@@ -29,7 +29,7 @@ class CartController extends Controller
                 ], 403);
             }
 
-            if (!$user->activeCart()) {
+            if (!$user->activeCart) {
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Cart is empty',
@@ -79,13 +79,6 @@ class CartController extends Controller
         DB::beginTransaction();
         try {
             $user = auth('api')->user();
-
-            if ($user->user_type != 'customer') {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Only customers can access cart'
-                ], 403);
-            }
 
             $data = $request->validated();
 
@@ -328,6 +321,66 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to clear cart',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function mergeWithUserCart()
+    {
+        try {
+            $user = auth('api')->user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            if ($user->user_type != 'customer') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Only customers can have carts'
+                ], 403);
+            }
+
+            $sessionId = session()->getId();
+            $guestCart = Cart::where('session_id', $sessionId)
+                ->where('status', 'active')
+                ->whereNull('user_id')
+                ->first();
+
+            if (!$guestCart || $guestCart->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No guest cart to merge',
+                    'merged' => false
+                ], 200);
+            }
+
+            $userCart = $this->getOrCreateActiveCart($user->id);
+            $userCart->mergeCart($guestCart);
+
+            $cartResult = $userCart->fresh([
+                'items.product' => function ($query) {
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                },
+                'items.variant' => function ($query) {
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                }
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Carts merged successfully',
+                'merged' => true,
+                'data' => $cartResult
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to merge cart',
                 'error' => $th->getMessage()
             ], 500);
         }

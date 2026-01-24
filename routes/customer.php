@@ -13,6 +13,8 @@ Route::prefix('v1/customer')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+    Route::post('add', [CartController::class, 'addToCart']);
 });
 
 // Protected customer routes (authentication required)
@@ -24,12 +26,12 @@ Route::middleware(['auth:api', 'customer.auth'])->prefix('v1/customer')->group(f
     Route::post('link', [AuthController::class, 'linkGoogleAccount']);
     Route::post('unlink', [AuthController::class, 'unlinkGoogleAccount']);
 
-    // Cart routes
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'getCart']);
         Route::post('add', [CartController::class, 'addToCart']);
         Route::put('update/{itemId}', [CartController::class, 'updateCartItem']);
         Route::delete('remove/{itemId}', [CartController::class, 'remove']);
         Route::delete('clear', [CartController::class, 'clearCart']);
+        Route::post('merge', [CartController::class, 'mergeWithUserCart']);
     });
 });
