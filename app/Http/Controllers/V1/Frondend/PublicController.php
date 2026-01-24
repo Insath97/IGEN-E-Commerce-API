@@ -79,9 +79,22 @@ class PublicController extends Controller
             $perPage = $request->get('per_page', 15);
 
             $query = Product::select([
-                'id', 'name', 'slug', 'code', 'category_id', 'brand_id', 'type', 
-                'short_description', 'full_description', 'primary_image_path', 
-                'price', 'sale_price', 'status', 'is_trending', 'is_active', 'is_featured'
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'full_description',
+                'primary_image_path',
+                'type',
+                'created_by',
+                'status',
+                'is_trending',
+                'is_active',
+                'is_featured'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
@@ -166,9 +179,22 @@ class PublicController extends Controller
     {
         try {
             $product = Product::select([
-                'id', 'name', 'slug', 'code', 'category_id', 'brand_id', 'type', 
-                'short_description', 'full_description', 'primary_image_path', 
-                'price', 'sale_price', 'status', 'is_trending', 'is_active', 'is_featured'
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'full_description',
+                'primary_image_path',
+                'type',
+                'created_by',
+                'status',
+                'is_trending',
+                'is_active',
+                'is_featured'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
