@@ -4,6 +4,7 @@ use App\Http\Controllers\V1\Admin\AdminUserController;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
+use App\Http\Controllers\V1\Admin\CustomerController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\PermissionController;
@@ -32,6 +33,13 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/deactivate', [AdminUserController::class, 'deactivate']);
         Route::patch('{id}/profile-image', [AdminUserController::class, 'updateProfileImage']);
         Route::delete('{id}/profile-image', [AdminUserController::class, 'removeProfileImage']);
+    });
+
+    Route::apiResource('customers', CustomerController::class);
+    Route::prefix('customers')->group(function () {
+        Route::patch('{id}/activate', [CustomerController::class, 'activate']);
+        Route::patch('{id}/deactivate', [CustomerController::class, 'deactivate']);
+        Route::patch('{id}/verify', [CustomerController::class, 'verify']);
     });
 
     Route::apiResource('brands', BrandController::class);

@@ -14,6 +14,8 @@ Route::prefix('v1/customer')->group(function () {
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
+    Route::post('auth/google/login', [AuthController::class, 'googleLogin']);
+
     Route::post('add', [CartController::class, 'addToCart']);
 });
 

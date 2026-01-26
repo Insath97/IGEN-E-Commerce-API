@@ -33,7 +33,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'last_login_ip',
         'email_verified_at',
         'email_verification_token',
-        'email_verification_token_expires_at'
+        'email_verification_token_expires_at',
+        'google_id',
+        'auth_provider'
     ];
 
     /**
@@ -140,6 +142,18 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         $this->update([
             'email_verified_at' => now(),
             'email_verification_token' => $token,
+            'email_verification_token_expires_at' => null
+        ]);
+    }
+
+    /**
+     * Mark the user's email as verified without a token
+     */
+    public function markEmailAsVerified()
+    {
+        $this->update([
+            'email_verified_at' => now(),
+            'email_verification_token' => null,
             'email_verification_token_expires_at' => null
         ]);
     }
