@@ -76,6 +76,11 @@ class Product extends Model
         return $this->belongsToMany(Tag::class, 'product_tag');
     }
 
+/*     public function reviews()
+    {
+        return $this->hasMany(Review::class)->approved();
+    }
+ */
     public function compatibleProducts(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -171,4 +176,38 @@ class Product extends Model
     {
         $this->update(['is_featured' => !$this->is_featured]);
     }
+
+ /*    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function getProductAverageRatingAttribute()
+    {
+        return $this->productReviews()->avg('rating') ?? 0;
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return $this->reviews()->count();
+    }
+
+    public function getProductReviewsCountAttribute()
+    {
+        return $this->productReviews()->count();
+    }
+
+    public function getVariantReviewsCountAttribute()
+    {
+        return $this->variantReviews()->count();
+    }
+
+    public function getRatingDistributionAttribute()
+    {
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = $this->reviews()->where('rating', $i)->count();
+        }
+        return $distribution;
+    } */
 }

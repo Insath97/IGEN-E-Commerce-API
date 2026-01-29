@@ -4,6 +4,7 @@ use App\Http\Controllers\V1\Admin\AdminUserController;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
+use App\Http\Controllers\V1\Admin\CouponController;
 use App\Http\Controllers\V1\Admin\CustomerController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
@@ -90,5 +91,12 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/toggle-active', [ProductVariantController::class, 'toggleActive']);
         Route::patch('{id}/toggle-featured', [ProductVariantController::class, 'toggleFeatured']);
         Route::patch('{id}/toggle-trending', [ProductVariantController::class, 'toggleTrending']);
+    });
+
+    Route::apiResource('coupons', CouponController::class);
+    Route::prefix('coupons')->group(function () {
+        Route::patch('{id}/activate', [CouponController::class, 'activate']);
+        Route::patch('{id}/deactivate', [CouponController::class, 'deactivate']);
+        Route::patch('{id}/toggle-active', [CouponController::class, 'toggleActive']);
     });
 });

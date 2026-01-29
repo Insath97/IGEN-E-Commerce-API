@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('barcode')->unique()->nullable();
             $table->string('imei')->unique()->nullable();
             $table->string('warranty_period')->nullable();
-            $table->string('storage_size');
-            $table->string('ram_size');
-            $table->string('color');
+            $table->string('storage_size')->nullable();
+            $table->string('ram_size')->nullable();
+            $table->string('color')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('sales_price', 10, 2)->nullable();
             $table->integer('stock_quantity')->default(0);

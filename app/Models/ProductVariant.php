@@ -57,6 +57,11 @@ class ProductVariant extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+/*     public function reviews()
+    {
+        return $this->hasMany(Review::class)->approved();
+    } */
+
     /**
      * Scopes
      */
