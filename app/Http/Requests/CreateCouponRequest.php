@@ -32,7 +32,7 @@ class CreateCouponRequest extends FormRequest
             'min_purchase_amount' => 'nullable|numeric|min:0',
             'start_date' => 'required|date|after_or_equal:today',
             'expiry_date' => 'required|date|after_or_equal:start_date',
-            'usage_limit' => 'nullable|integer|min:1',
+            'usage_limit' => 'nullable|integer|min:1|numeric|digits:10',
             'usage_limit_per_user' => 'nullable|integer|min:1',
             'is_active' => 'nullable|boolean',
             'tiers' => 'required_if:type,tiered_percentage|array',
