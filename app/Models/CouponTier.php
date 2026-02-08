@@ -14,6 +14,13 @@ class CouponTier extends Model
         'priority',
     ];
 
+    protected $casts = [
+        'min_amount' => 'decimal:2',
+        'max_amount' => 'decimal:2',
+        'percentage' => 'decimal:2',
+        'priority' => 'integer',
+    ];
+
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);

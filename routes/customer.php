@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\V1\Customer\AuthController;
 use App\Http\Controllers\V1\Customer\CartController;
+use App\Http\Controllers\V1\Customer\CouponController;
 use Illuminate\Support\Facades\Route;
 
 // Public customer routes (no authentication required)
@@ -36,4 +37,6 @@ Route::middleware(['auth:api', 'customer.auth'])->prefix('v1/customer')->group(f
         Route::delete('clear', [CartController::class, 'clearCart']);
         Route::post('merge', [CartController::class, 'mergeWithUserCart']);
     });
+
+    Route::post('apply-coupon', [CouponController::class, 'applyCoupon']);
 });

@@ -26,7 +26,7 @@ class Coupon extends Model
     ];
 
     protected $casts = [
-        'discount_amount' => 'decimal:2',
+        'value' => 'decimal:2',
         'min_purchase_amount' => 'decimal:2',
         'start_date' => 'date',
         'expiry_date' => 'date',
@@ -36,10 +36,10 @@ class Coupon extends Model
     /**
      * Relationships
      */
-  /*   public function usages()
+    public function usages()
     {
         return $this->hasMany(CouponUsage::class);
-    } */
+    }
 
     public function tiers()
     {
@@ -90,7 +90,7 @@ class Coupon extends Model
 
     public function scopeFixed($query)
     {
-        return $query->where('type', 'fixed');
+        return $query->where('type', 'fixed_amount');
     }
 
     public function scopePercentage($query)
@@ -124,20 +124,74 @@ class Coupon extends Model
     /**
      * Validation Methods
      */
+
     public function isValidForUser($userId)
     {
+        // Check if coupon is active and within date range
+        if (!$this->is_valid) {
+            return [
+                'status' => false,
+                'message' => 'This coupon is either inactive or expired.'
+            ];
+        }
+
         // Check global usage limit
         if ($this->usage_limit !== null && $this->used_count >= $this->usage_limit) {
-            return false;
+            return [
+                'status' => false,
+                'message' => 'This coupon has reached its maximum usage limit.'
+            ];
         }
 
         // Check per-user usage limit
         $userUsageCount = $this->usages()->where('user_id', $userId)->count();
-        if ($userUsageCount >= $this->usage_limit_per_user) {
-            return false;
+        if ($userUsageCount >= (int) ($this->usage_limit_per_user ?? 1)) {
+            return [
+                'status' => false,
+                'message' => 'You have already used this coupon.'
+            ];
         }
 
-        return $this->is_valid;
+        return [
+            'status' => true,
+            'message' => 'Coupon is valid.'
+        ];
+    }
+
+    public function calculateDiscount($totalAmount)
+    {
+        $discount = 0;
+        $type = strtolower($this->type);
+
+        if ($type === 'fixed_amount' || $type === 'fixed') {
+            $discount = min($this->value, $totalAmount);
+        } elseif ($type === 'percentage') {
+            $discount = ($totalAmount * $this->value) / 100;
+        } elseif ($type === 'tiered_percentage') {
+            $tier = $this->tiers()
+                ->where('min_amount', '<=', $totalAmount)
+                ->where(function ($query) use ($totalAmount) {
+                    $query->whereNull('max_amount')
+                        ->orWhere('max_amount', '>=', $totalAmount);
+                })
+                ->orderBy('priority', 'desc')
+                ->orderBy('min_amount', 'desc')
+                ->first();
+
+            // Fallback: If no strict range match, pick the highest tier qualified for
+            if (!$tier) {
+                $tier = $this->tiers()
+                    ->where('min_amount', '<=', $totalAmount)
+                    ->orderBy('priority', 'desc')
+                    ->orderBy('min_amount', 'desc')
+                    ->first();
+            }
+
+            if ($tier) {
+                $discount = ($totalAmount * $tier->percentage) / 100;
+            }
+        }
+        return round((float) $discount, 2);
     }
 
     public function activate()
@@ -150,4 +204,3 @@ class Coupon extends Model
         return $this->update(['is_active' => false]);
     }
 }
-
