@@ -6,31 +6,29 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateBrandrequest extends FormRequest
+class InitiateCheckoutRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:brands,name',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'slug' => 'nullable|string|max:255|unique:brands,slug',
-            'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'is_active' => 'nullable|boolean',
-            'is_featured' => 'nullable|boolean',
+            'product_id' => 'nullable|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
+            'quantity' => 'nullable|integer|min:1',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'product_id.exists' => 'The selected product does not exist.',
+            'variant_id.exists' => 'The selected variant does not exist.',
+            'quantity.integer' => 'Quantity must be a number.',
+            'quantity.min' => 'Quantity must be at least 1.',
         ];
     }
 
@@ -50,6 +48,8 @@ class CreateBrandrequest extends FormRequest
             : 'There is an issue with the input for ' . $fieldErrors->first()['field'] . '.';
 
         throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'success' => false,
             'message' => $message,
             'errors' => $fieldErrors,
         ], 422));

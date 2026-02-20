@@ -87,4 +87,14 @@ class Customer extends Model
             ? $this->whatsapp_number
             : $this->phone;
     }
+
+    public function deliveryAddresses(): HasMany
+    {
+        return $this->hasMany(DeliveryAddress::class);
+    }
+
+    public function defaultDeliveryAddress()
+    {
+        return $this->hasOne(DeliveryAddress::class)->where('is_default', true);
+    }
 }

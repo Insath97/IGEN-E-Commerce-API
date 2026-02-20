@@ -98,5 +98,21 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/activate', [CouponController::class, 'activate']);
         Route::patch('{id}/deactivate', [CouponController::class, 'deactivate']);
         Route::patch('{id}/toggle-active', [CouponController::class, 'toggleActive']);
+        Route::get('{id}/usage', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getCouponUsage']);
     });
+
+    // Order management routes
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [\App\Http\Controllers\V1\Admin\OrderController::class, 'index']);
+        Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
+        Route::get('{id}', [\App\Http\Controllers\V1\Admin\OrderController::class, 'show']);
+        Route::patch('{id}/order-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updateOrderStatus']);
+        Route::patch('{id}/payment-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updatePaymentStatus']);
+    });
+
+    // Coupon usage tracking
+    Route::get('coupon-usages', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getAllCouponUsages']);
+
+    // Customer orders
+    Route::get('customers/{id}/orders', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getCustomerOrders']);
 });

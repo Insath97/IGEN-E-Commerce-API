@@ -3,6 +3,9 @@
 use App\Http\Controllers\V1\Customer\AuthController;
 use App\Http\Controllers\V1\Customer\CartController;
 use App\Http\Controllers\V1\Customer\CouponController;
+use App\Http\Controllers\V1\Customer\DeliveryAddressController;
+use App\Http\Controllers\V1\Customer\CheckoutController;
+use App\Http\Controllers\V1\Customer\OrderController;
 use Illuminate\Support\Facades\Route;
 
 // Public customer routes (no authentication required)
@@ -38,5 +41,20 @@ Route::middleware(['auth:api', 'customer.auth'])->prefix('v1/customer')->group(f
         Route::post('merge', [CartController::class, 'mergeWithUserCart']);
     });
 
-    Route::post('apply-coupon', [CouponController::class, 'applyCoupon']);
+    Route::apiResource('delivery-addresses', DeliveryAddressController::class);
+
+    Route::prefix('checkout')->group(function () {
+        Route::post('/', [CheckoutController::class, 'store']);
+        Route::get('{id}', [CheckoutController::class, 'show']);
+        Route::post('{id}/apply-coupon', [CheckoutController::class, 'applyCoupon']);
+        Route::delete('{id}/remove-coupon', [CheckoutController::class, 'removeCoupon']);
+        Route::post('{id}/set-address', [CheckoutController::class, 'setDeliveryAddress']);
+        Route::post('{id}/confirm', [OrderController::class, 'confirmCheckout']);
+    });
+
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);
+        Route::get('{id}', [OrderController::class, 'show']);
+        Route::post('{id}/cancel', [OrderController::class, 'cancel']);
+    });
 });

@@ -2,35 +2,36 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\FileUploadTrait;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateBrandrequest extends FormRequest
+class ConfirmCheckoutRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    use FileUploadTrait;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:brands,name',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'slug' => 'nullable|string|max:255|unique:brands,slug',
-            'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'is_active' => 'nullable|boolean',
-            'is_featured' => 'nullable|boolean',
+            'payment_method' => 'required|in:card,cash_on_delivery,bank_transfer',
+            'payment_slip' => 'required_if:payment_method,bank_transfer|image|mimes:jpeg,png,jpg,pdf|max:5120',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'payment_method.required' => 'Please select a payment method',
+            'payment_method.in' => 'Invalid payment method selected',
+            'payment_slip.required_if' => 'Payment slip is required for bank transfer payments',
+            'payment_slip.image' => 'Payment slip must be an image',
+            'payment_slip.max' => 'Payment slip size must not exceed 5MB',
         ];
     }
 
@@ -50,6 +51,8 @@ class CreateBrandrequest extends FormRequest
             : 'There is an issue with the input for ' . $fieldErrors->first()['field'] . '.';
 
         throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'success' => false,
             'message' => $message,
             'errors' => $fieldErrors,
         ], 422));

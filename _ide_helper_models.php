@@ -155,6 +155,38 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \App\Models\CheckoutSession|null $checkoutSession
+ * @property-read \App\Models\Product|null $product
+ * @property-read \App\Models\ProductVariant|null $variant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem query()
+ */
+	class CheckoutItem extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\Cart|null $cart
+ * @property-read \App\Models\Coupon|null $coupon
+ * @property-read \App\Models\DeliveryAddress|null $deliveryAddress
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CheckoutItem> $items
+ * @property-read int|null $items_count
+ * @property-read \App\Models\Order|null $order
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession active()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession expired()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession forSession($sessionId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession forUser($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession query()
+ */
+	class CheckoutSession extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property string $code
  * @property string|null $name
@@ -175,6 +207,8 @@ namespace App\Models{
  * @property-read mixed $usage_percentage
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponTier> $tiers
  * @property-read int|null $tiers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CouponUsage> $usages
+ * @property-read int|null $usages_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon expired()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Coupon fixed()
@@ -232,9 +266,28 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $coupon_id
+ * @property int $user_id
+ * @property int|null $order_id
+ * @property numeric $discount_amount
+ * @property numeric $order_amount
+ * @property string $used_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Coupon $coupon
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereCouponId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereOrderAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUsedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage whereUserId($value)
  */
 	class CouponUsage extends \Eloquent {}
 }
@@ -259,6 +312,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DeliveryAddress> $deliveryAddresses
+ * @property-read int|null $delivery_addresses_count
  * @property-read string $full_address
  * @property-read string $whatsapp_contact
  * @property-read \App\Models\User $user
@@ -293,6 +348,46 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $customer_id
+ * @property string|null $full_name
+ * @property string|null $phone
+ * @property string $address_name
+ * @property string $address_line_1
+ * @property string|null $address_line_2
+ * @property string|null $landmark
+ * @property string $city
+ * @property string|null $state
+ * @property string $country
+ * @property string|null $postal_code
+ * @property bool $is_default
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Customer $customer
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereAddressLine1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereAddressLine2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereAddressName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereCustomerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereFullName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereLandmark($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress wherePostalCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DeliveryAddress whereUpdatedAt($value)
+ */
+	class DeliveryAddress extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property string $name
  * @property string $slug
  * @property string|null $description
@@ -315,11 +410,43 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\CheckoutSession|null $checkoutSession
+ * @property-read \App\Models\Coupon|null $coupon
+ * @property-read \App\Models\Customer|null $customer
+ * @property-read \App\Models\DeliveryAddress|null $deliveryAddress
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
+ * @property-read int|null $items_count
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order cancelled()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order delivered()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order paid()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order processing()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order shipped()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order unpaid()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
  */
 	class Order extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\Order|null $order
+ * @property-read \App\Models\Product|null $product
+ * @property-read \App\Models\ProductVariant|null $variant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
+ */
+	class OrderItem extends \Eloquent {}
 }
 
 namespace App\Models{

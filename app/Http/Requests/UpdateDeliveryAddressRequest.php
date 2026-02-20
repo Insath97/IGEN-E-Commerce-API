@@ -3,10 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateBrandrequest extends FormRequest
+class UpdateDeliveryAddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,17 +22,21 @@ class CreateBrandrequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:brands,name',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'slug' => 'nullable|string|max:255|unique:brands,slug',
-            'website' => 'nullable|url|max:255',
-            'description' => 'nullable|string|max:1000',
-            'is_active' => 'nullable|boolean',
-            'is_featured' => 'nullable|boolean',
+            'full_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address_name' => 'nullable|string|max:255',
+            'address_line_1' => 'nullable|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
+            'landmark' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+            'is_default' => 'nullable|boolean',
         ];
     }
 
-    protected function failedValidation(Validator $validator)
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {
         $errorMessages = $validator->errors();
 
@@ -49,7 +51,7 @@ class CreateBrandrequest extends FormRequest
             ? 'There are multiple validation errors. Please review the form and correct the issues.'
             : 'There is an issue with the input for ' . $fieldErrors->first()['field'] . '.';
 
-        throw new HttpResponseException(response()->json([
+        throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json([
             'message' => $message,
             'errors' => $fieldErrors,
         ], 422));

@@ -183,22 +183,22 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     public function socialAccounts()
-{
-    return $this->hasMany(SocialAccount::class);
-}
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
 
-public function hasSocialAccount($provider)
-{
-    return $this->socialAccounts()->where('provider', $provider)->exists();
-}
+    public function hasSocialAccount($provider)
+    {
+        return $this->socialAccounts()->where('provider', $provider)->exists();
+    }
 
-public function carts()
-{
-    return $this->hasOne(Cart::class);
-}
+    public function carts()
+    {
+        return $this->hasOne(Cart::class);
+    }
 
-public function activeCart()
-{
-    return $this->hasOne(Cart::class)->where('status', 'active');
-}
+    public function activeCart()
+    {
+        return $this->hasOne(Cart::class)->where('status', 'active');
+    }
 }

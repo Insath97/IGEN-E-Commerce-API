@@ -152,6 +152,18 @@ class AuthController extends Controller
 
         $user->updateLastLogin($request->ip());
 
+        $cookie = cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7,
+            '/',
+            null,
+            true,  // Secure
+            true,  // HttpOnly
+            false,
+            'lax'
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
@@ -168,7 +180,7 @@ class AuthController extends Controller
                     'email_verified' => true
                 ]
             ]
-        ]);
+        ], 200)->cookie($cookie);
     }
 
     /**
@@ -270,6 +282,7 @@ class AuthController extends Controller
                     'address' => $customer->full_address,
                     'is_verified' => $customer->is_verified,
                     'verification_level' => $customer->verification_level,
+                    'default_delivery_address' => $customer->defaultDeliveryAddress,
                 ] : null
             ]
         ]);
@@ -299,6 +312,18 @@ class AuthController extends Controller
         $user->markEmailAsVerifiedcheck($request->token);
         $token = Auth::guard('api')->login($user);
 
+        $cookie = cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7,
+            '/',
+            null,
+            true,  // Secure
+            true,  // HttpOnly
+            false,
+            'lax'
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Email verified successfully!',
@@ -307,7 +332,7 @@ class AuthController extends Controller
                 'token_type' => 'bearer',
                 'user' => $user
             ]
-        ]);
+        ])->cookie($cookie);
     }
 
     /**
@@ -341,9 +366,18 @@ class AuthController extends Controller
     {
         try {
             Auth::guard('api')->logout();
-            return response()->json(['status' => 'success', 'message' => 'Logout successful'], 200);
+
+            $cookie = Cookie::forget('auth_token');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout successful'
+            ], 200)->withCookie($cookie);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 'error', 'message' => 'Failed to logout'], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to logout'
+            ], 500);
         }
     }
 
@@ -399,6 +433,18 @@ class AuthController extends Controller
 
             $user->updateLastLogin($request->ip());
 
+            $cookie = cookie(
+                'auth_token',
+                $token,
+                60 * 24 * 7,
+                '/',
+                null,
+                true,  // Secure
+                true,  // HttpOnly
+                false,
+                'lax'
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
@@ -408,7 +454,7 @@ class AuthController extends Controller
                     'expires_in' => config('jwt.ttl') * 60,
                     'user' => $user
                 ]
-            ]);
+            ])->cookie($cookie);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Google authentication failed', 'error' => $e->getMessage()], 401);
         }
