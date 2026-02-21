@@ -4,7 +4,6 @@ namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\CouponUsage;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
