@@ -6,6 +6,7 @@ use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
 use App\Http\Controllers\V1\Admin\CouponController;
 use App\Http\Controllers\V1\Admin\CustomerController;
+use App\Http\Controllers\V1\Admin\OrderController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\PermissionController;
@@ -98,20 +99,18 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/activate', [CouponController::class, 'activate']);
         Route::patch('{id}/deactivate', [CouponController::class, 'deactivate']);
         Route::patch('{id}/toggle-active', [CouponController::class, 'toggleActive']);
-        Route::get('{id}/usage', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getCouponUsage']);
+        Route::get('usages', [CouponController::class, 'getAllCouponUsages']);
+        Route::get('{id}/usage', [CouponController::class, 'getCouponUsage']);
     });
 
     // Order management routes
     Route::prefix('orders')->group(function () {
-        Route::get('/', [\App\Http\Controllers\V1\Admin\OrderController::class, 'index']);
+        Route::get('/', [OrderController::class, 'index']);
         Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
-        Route::get('{id}', [\App\Http\Controllers\V1\Admin\OrderController::class, 'show']);
+        Route::get('{id}', [OrderController::class, 'show']);
         Route::patch('{id}/order-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updateOrderStatus']);
         Route::patch('{id}/payment-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updatePaymentStatus']);
     });
-
-    // Coupon usage tracking
-    Route::get('coupon-usages', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getAllCouponUsages']);
 
     // Customer orders
     Route::get('customers/{id}/orders', [\App\Http\Controllers\V1\Admin\OrderController::class, 'getCustomerOrders']);

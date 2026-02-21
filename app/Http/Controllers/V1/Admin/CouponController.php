@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCouponRequest;
 use App\Http\Requests\UpdateCouponRequest;
 use App\Models\Coupon;
+use App\Models\CouponUsage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -294,6 +295,78 @@ class CouponController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to toggle coupon status',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all coupon usages with filters
+     */
+    public function getAllCouponUsages(Request $request)
+    {
+        try {
+            $perPage = $request->get('per_page', 15);
+            $query = CouponUsage::with(['user.customer', 'coupon', 'order']);
+
+            // Filter by customer
+            if ($request->has('customer_id')) {
+                $query->whereHas('user.customer', function ($q) use ($request) {
+                    $q->where('id', $request->customer_id);
+                });
+            }
+
+            // Filter by coupon
+            if ($request->has('coupon_id')) {
+                $query->where('coupon_id', $request->coupon_id);
+            }
+
+            // Filter by date range
+            if ($request->has('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            if ($request->has('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+
+            $query->orderBy('created_at', 'desc');
+
+            $usages = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Coupon usages retrieved successfully',
+                'data' => $usages
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve coupon usages',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get coupon usage for a specific coupon
+     */
+    public function getCouponUsage(string $couponId)
+    {
+        try {
+            $usages = CouponUsage::with(['user.customer', 'order'])
+                ->where('coupon_id', $couponId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Coupon usage retrieved successfully',
+                'data' => $usages
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve coupon usage',
                 'error' => $th->getMessage()
             ], 500);
         }
