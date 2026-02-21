@@ -143,6 +143,22 @@ class Order extends Model
         $this->update(['order_status' => 'processing']);
     }
 
+    public function confirmPayment($verifiedBy, $notes = null)
+    {
+        $payment = $this->latestPayment;
+        if ($payment) {
+            $payment->update([
+                'payment_status' => 'completed',
+                'verified_by' => $verifiedBy,
+                'verified_at' => now(),
+                'verification_notes' => $notes,
+                'paid_at' => now(),
+            ]);
+        }
+        
+        $this->markAsProcessing();
+    }
+
     public function markAsShipped()
     {
         $this->update(['order_status' => 'shipped']);

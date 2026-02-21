@@ -212,6 +212,72 @@ class OrderController extends Controller
     }
 
     /**
+     * Verify and process order based on payment method
+     */
+    public function verify(Request $request, string $id): JsonResponse
+    {
+        try {
+            $order = Order::with('latestPayment')->find($id);
+
+            if (!$order) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order not found',
+                ], 404);
+            }
+
+            $payment = $order->latestPayment;
+            if (!$payment) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No payment record found for this order',
+                ], 422);
+            }
+
+            $adminId = auth('api')->id();
+            $notes = $request->get('notes');
+
+            // Logic based on payment method
+            switch ($payment->payment_method) {
+                case 'bank_transfer':
+                    $order->confirmPayment($adminId, $notes);
+                    $message = 'Bank transfer verified. Order moved to processing and payment marked as completed.';
+                    break;
+
+                case 'cash_on_delivery':
+                    $order->markAsProcessing();
+                    $message = 'COD order moved to processing. Payment status remains pending.';
+                    break;
+
+                case 'card':
+                    // Future logic for manual override if needed
+                    $order->markAsProcessing();
+                    $message = 'Card payment order moved to processing.';
+                    break;
+
+                default:
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Unsupported payment method for verification flow',
+                    ], 422);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+                'data' => $order->fresh(['latestPayment'])
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to verify order',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get order statistics
      */
     public function statistics(): JsonResponse

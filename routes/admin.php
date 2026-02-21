@@ -108,6 +108,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::get('/', [OrderController::class, 'index']);
         Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
         Route::get('{id}', [OrderController::class, 'show']);
+        Route::patch('{id}/verify', [OrderController::class, 'verify']);
         Route::patch('{id}/order-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updateOrderStatus']);
         Route::patch('{id}/payment-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updatePaymentStatus']);
     });
