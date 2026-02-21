@@ -40,6 +40,14 @@ class OrderController extends Controller
 
             $orders = $query->paginate($perPage);
 
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No orders found',
+                    'data' => []
+                ], 200);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Orders retrieved successfully',
@@ -62,13 +70,35 @@ class OrderController extends Controller
         try {
             $user = auth('api')->user();
 
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            if ($user->user_type != 'customer') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Only customers can have carts'
+                ], 403);
+            }
+
             $order = Order::with([
                 'items.product',
                 'items.variant',
                 'deliveryAddress',
                 'coupon',
                 'payments'
-            ])->findOrFail($id);
+            ])->find($id);
+
+            if (!$order) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order not found',
+                    'data' => []
+                ], 404);
+            }
 
             // Verify ownership
             if ($order->user_id != $user->id) {
@@ -80,12 +110,13 @@ class OrderController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $order,
+                'message' => 'Order retrieved successfully',
+                'data' => $order
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Order not found',
+                'message' => 'Failed to retrieve order',
                 'error' => $e->getMessage(),
             ], 404);
         }
@@ -228,7 +259,7 @@ class OrderController extends Controller
             // Clear cart if cart-based checkout
             if ($checkoutSession->type === 'cart' && $checkoutSession->cart_id) {
                 $checkoutSession->cart->items()->delete();
-                $checkoutSession->cart->update(['status' => 'completed']);
+                $checkoutSession->cart->update(['status' => 'converted']);
             }
 
             // Mark checkout session as completed

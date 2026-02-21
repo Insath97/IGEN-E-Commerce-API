@@ -12,6 +12,7 @@ use App\Models\CheckoutItem;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +47,7 @@ class CheckoutController extends Controller
                 // Shared logic: Create checkout session
                 $checkoutSession = CheckoutSession::create([
                     'user_id' => $user->id,
+                    'session_id' => Str::uuid()->toString(),
                     'subtotal' => 0, // Will be updated
                     'total_amount' => 0, // Will be updated
                     'status' => 'active',
