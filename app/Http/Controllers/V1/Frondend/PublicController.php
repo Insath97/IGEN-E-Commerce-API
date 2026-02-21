@@ -105,6 +105,9 @@ class PublicController extends Controller
                 'tags:id,name,slug',
                 'compatibleProducts:id,name,primary_image_path',
                 'bundledProducts:id,name,primary_image_path',
+                'reviews' => fn($q) => $q->where('is_approved', true)->with('user:id,name,profile_image')->latest(),
+                'reviews.images',
+                'variants.reviews' => fn($q) => $q->where('is_approved', true)->latest(),
             ])->active();
 
             // Search
@@ -205,6 +208,9 @@ class PublicController extends Controller
                 'tags:id,name,slug',
                 'compatibleProducts:id,name,primary_image_path',
                 'bundledProducts:id,name,primary_image_path',
+                'reviews' => fn($q) => $q->where('is_approved', true)->with('user:id,name,profile_image')->latest(),
+                'reviews.images',
+                'variants.reviews' => fn($q) => $q->where('is_approved', true)->latest(),
             ])->active()->find($id);
 
             if (!$product) {

@@ -42,6 +42,11 @@ class OrderItem extends Model
         return $this->belongsTo(ProductVariant::class);
     }
 
+    public function review()
+    {
+        return $this->hasOne(ProductReview::class, 'order_item_id');
+    }
+
     /**
      * Boot method
      */

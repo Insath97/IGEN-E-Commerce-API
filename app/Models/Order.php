@@ -81,6 +81,11 @@ class Order extends Model
         return $this->hasOne(Payment::class)->latestOfMany();
     }
 
+    public function shippingDetail()
+    {
+        return $this->hasOne(ShippingDetail::class);
+    }
+
     /**
      * Scopes
      */
@@ -159,9 +164,23 @@ class Order extends Model
         $this->markAsProcessing();
     }
 
-    public function markAsShipped()
+    public function markAsShipped($data = [])
     {
         $this->update(['order_status' => 'shipped']);
+
+        if (!empty($data)) {
+            $this->shippingDetail()->updateOrCreate(
+                ['order_id' => $this->id],
+                [
+                    'courier_name' => $data['courier_name'],
+                    'courier_phone' => $data['courier_phone'] ?? null,
+                    'tracking_number' => $data['tracking_number'],
+                    'shipped_at' => now(),
+                    'estimated_delivery_at' => $data['estimated_delivery_at'] ?? null,
+                    'shipping_notes' => $data['shipping_notes'] ?? null,
+                ]
+            );
+        }
     }
 
     public function markAsDelivered()

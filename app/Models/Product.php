@@ -36,6 +36,11 @@ class Product extends Model
         'is_featured' => 'boolean',
     ];
 
+    protected $appends = [
+        'average_rating',
+        'total_reviews',
+    ];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -74,6 +79,11 @@ class Product extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'product_tag');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
     }
 
 /*     public function reviews()
@@ -177,37 +187,22 @@ class Product extends Model
         $this->update(['is_featured' => !$this->is_featured]);
     }
 
- /*    public function getAverageRatingAttribute()
+    public function getAverageRatingAttribute()
     {
-        return $this->reviews()->avg('rating') ?? 0;
-    }
-
-    public function getProductAverageRatingAttribute()
-    {
-        return $this->productReviews()->avg('rating') ?? 0;
+        return round($this->reviews()->where('is_approved', true)->avg('rating') ?? 0, 1);
     }
 
     public function getTotalReviewsAttribute()
     {
-        return $this->reviews()->count();
-    }
-
-    public function getProductReviewsCountAttribute()
-    {
-        return $this->productReviews()->count();
-    }
-
-    public function getVariantReviewsCountAttribute()
-    {
-        return $this->variantReviews()->count();
+        return $this->reviews()->where('is_approved', true)->count();
     }
 
     public function getRatingDistributionAttribute()
     {
         $distribution = [];
         for ($i = 1; $i <= 5; $i++) {
-            $distribution[$i] = $this->reviews()->where('rating', $i)->count();
+            $distribution[$i] = $this->reviews()->where('is_approved', true)->where('rating', $i)->count();
         }
         return $distribution;
-    } */
+    }
 }

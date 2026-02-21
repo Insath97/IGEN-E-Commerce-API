@@ -4,6 +4,9 @@ namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Http\Requests\UpdateOrderStatusRequest;
+use App\Http\Requests\UpdatePaymentStatusRequest;
+use App\Http\Requests\VerifyOrderRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -23,8 +26,8 @@ class OrderController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('order_number', 'LIKE', "%{$search}%")
-                        ->orWhereHas('customer', function ($q) use ($search) {
-                            $q->where('full_name', 'LIKE', "%{$search}%");
+                        ->orWhereHas('customer.user', function ($q) use ($search) {
+                            $q->where('name', 'LIKE', "%{$search}%");
                         });
                 });
             }
@@ -118,12 +121,9 @@ class OrderController extends Controller
     /**
      * Update order status
      */
-    public function updateOrderStatus(Request $request, string $id): JsonResponse
+    public function updateOrderStatus(UpdateOrderStatusRequest $request, string $id): JsonResponse
     {
-        $request->validate([
-            'order_status' => 'required|in:pending,processing,shipped,delivered,cancelled',
-            'cancellation_reason' => 'required_if:order_status,cancelled|nullable|string|max:500',
-        ]);
+        $data = $request->validated();
 
         try {
             $order = Order::find($id);
@@ -135,11 +135,19 @@ class OrderController extends Controller
                 ], 404);
             }
 
-            if ($request->order_status === 'cancelled') {
-                $order->cancel($request->cancellation_reason);
+            if ($data['order_status'] === 'cancelled') {
+                $order->cancel($data['cancellation_reason']);
+            } elseif ($data['order_status'] === 'shipped') {
+                $order->markAsShipped([
+                    'courier_name' => $data['courier_name'],
+                    'courier_phone' => $data['courier_phone'] ?? null,
+                    'tracking_number' => $data['tracking_number'],
+                    'estimated_delivery_at' => $data['estimated_delivery_at'] ?? null,
+                    'shipping_notes' => $data['shipping_notes'] ?? null,
+                ]);
             } else {
                 $order->update([
-                    'order_status' => $request->order_status
+                    'order_status' => $data['order_status']
                 ]);
             }
 
@@ -160,12 +168,9 @@ class OrderController extends Controller
     /**
      * Update payment status
      */
-    public function updatePaymentStatus(Request $request, string $id): JsonResponse
+    public function updatePaymentStatus(UpdatePaymentStatusRequest $request, string $id): JsonResponse
     {
-        $request->validate([
-            'payment_status' => 'required|in:pending,paid,failed,refunded',
-            'payment_reference' => 'nullable|string|max:255',
-        ]);
+        $data = $request->validated();
 
         try {
             $order = Order::find($id);
@@ -177,19 +182,19 @@ class OrderController extends Controller
                 ], 404);
             }
 
-            if ($request->payment_status === 'paid') {
-                $order->markAsPaid($request->payment_reference);
+            if ($data['payment_status'] === 'paid') {
+                $order->markAsPaid($data['payment_reference'] ?? null);
             } else {
                 $payment = $order->latestPayment;
                 if ($payment) {
                     $payment->update([
-                        'payment_status' => $request->payment_status === 'paid' ? 'completed' : $request->payment_status,
-                        'payment_reference' => $request->payment_reference,
+                        'payment_status' => $data['payment_status'] === 'paid' ? 'completed' : $data['payment_status'],
+                        'payment_reference' => $data['payment_reference'] ?? null,
                     ]);
                 } else {
                     $order->payments()->create([
-                        'payment_status' => $request->payment_status === 'paid' ? 'completed' : $request->payment_status,
-                        'payment_reference' => $request->payment_reference,
+                        'payment_status' => $data['payment_status'] === 'paid' ? 'completed' : $data['payment_status'],
+                        'payment_reference' => $data['payment_reference'] ?? null,
                         'amount' => $order->total_amount,
                         'payment_method' => 'other', // Default fallback
                         'currency' => 'LKR',
@@ -214,8 +219,9 @@ class OrderController extends Controller
     /**
      * Verify and process order based on payment method
      */
-    public function verify(Request $request, string $id): JsonResponse
+    public function verify(VerifyOrderRequest $request, string $id): JsonResponse
     {
+        $data = $request->validated();
         try {
             $order = Order::with('latestPayment')->find($id);
 
@@ -235,7 +241,7 @@ class OrderController extends Controller
             }
 
             $adminId = auth('api')->id();
-            $notes = $request->get('notes');
+            $notes = $data['notes'] ?? null;
 
             // Logic based on payment method
             switch ($payment->payment_method) {

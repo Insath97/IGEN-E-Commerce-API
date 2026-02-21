@@ -6,6 +6,7 @@ use App\Http\Controllers\V1\Customer\CouponController;
 use App\Http\Controllers\V1\Customer\DeliveryAddressController;
 use App\Http\Controllers\V1\Customer\CheckoutController;
 use App\Http\Controllers\V1\Customer\OrderController;
+use App\Http\Controllers\V1\Customer\ProductReviewController;
 use Illuminate\Support\Facades\Route;
 
 // Public customer routes (no authentication required)
@@ -56,5 +57,11 @@ Route::middleware(['auth:api', 'customer.auth'])->prefix('v1/customer')->group(f
         Route::get('/', [OrderController::class, 'index']);
         Route::get('{id}', [OrderController::class, 'show']);
         Route::post('{id}/cancel', [OrderController::class, 'cancel']);
+        Route::patch('{id}/received', [OrderController::class, 'markAsReceived']);
+    });
+
+    Route::prefix('reviews')->group(function () {
+        Route::post('/', [ProductReviewController::class, 'store']);
+        Route::get('product/{productId}', [ProductReviewController::class, 'getProductReviews']);
     });
 });

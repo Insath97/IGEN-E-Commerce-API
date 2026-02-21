@@ -44,6 +44,11 @@ class ProductVariant extends Model
         'is_featured' => 'boolean',
     ];
 
+    protected $appends = [
+        'average_rating',
+        'total_reviews',
+    ];
+
     /**
      * Relationships
      */
@@ -57,10 +62,20 @@ class ProductVariant extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-/*     public function reviews()
+    public function reviews()
     {
-        return $this->hasMany(Review::class)->approved();
-    } */
+        return $this->hasMany(ProductReview::class, 'variant_id');
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews()->where('is_approved', true)->avg('rating') ?? 0, 1);
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return $this->reviews()->where('is_approved', true)->count();
+    }
 
     /**
      * Scopes

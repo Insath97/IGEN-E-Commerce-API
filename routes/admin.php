@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\Admin\CustomerController;
 use App\Http\Controllers\V1\Admin\OrderController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
+use App\Http\Controllers\V1\Admin\ReviewController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -109,8 +110,15 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
         Route::get('{id}', [OrderController::class, 'show']);
         Route::patch('{id}/verify', [OrderController::class, 'verify']);
-        Route::patch('{id}/order-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updateOrderStatus']);
-        Route::patch('{id}/payment-status', [\App\Http\Controllers\V1\Admin\OrderController::class, 'updatePaymentStatus']);
+        Route::patch('{id}/order-status', [OrderController::class, 'updateOrderStatus']);
+        Route::patch('{id}/payment-status', [OrderController::class, 'updatePaymentStatus']);
+    });
+
+    Route::prefix('reviews')->group(function () {
+        Route::get('/', [ReviewController::class, 'index']);
+        Route::get('{id}', [ReviewController::class, 'show']);
+        Route::patch('{id}/toggle-status', [ReviewController::class, 'toggleStatus']);
+        Route::delete('{id}', [ReviewController::class, 'destroy']);
     });
 
     // Customer orders

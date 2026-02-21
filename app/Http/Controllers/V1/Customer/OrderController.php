@@ -30,7 +30,7 @@ class OrderController extends Controller
             $status = $request->query('status');
             $perPage = $request->get('per_page', 15);
 
-            $query = Order::with(['items.product', 'items.variant', 'deliveryAddress', 'latestPayment'])
+            $query = Order::with(['items.product', 'items.variant', 'deliveryAddress', 'latestPayment', 'shippingDetail'])
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc');
 
@@ -89,7 +89,8 @@ class OrderController extends Controller
                 'items.variant',
                 'deliveryAddress',
                 'coupon',
-                'payments'
+                'payments',
+                'shippingDetail'
             ])->find($id);
 
             if (!$order) {
@@ -332,6 +333,54 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to cancel order',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Mark order as received by customer
+     */
+    public function markAsReceived($id): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $user = auth('api')->user();
+            $order = Order::findOrFail($id);
+
+            // Verify ownership
+            if ($order->user_id != $user->id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized access to order'
+                ], 403);
+            }
+
+            // Check if status is shipped
+            if ($order->order_status !== 'shipped') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Only shipped orders can be marked as received'
+                ], 422);
+            }
+
+            // Update status
+            $order->update([
+                'order_status' => 'delivered'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order marked as received successfully',
+                'data' => $order->fresh(),
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to mark order as received',
                 'error' => $e->getMessage(),
             ], 400);
         }
