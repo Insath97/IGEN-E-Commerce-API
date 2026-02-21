@@ -155,18 +155,54 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property-read \App\Models\CheckoutSession|null $checkoutSession
- * @property-read \App\Models\Product|null $product
+ * @property int $id
+ * @property int $checkout_session_id
+ * @property int $product_id
+ * @property int|null $variant_id
+ * @property int $quantity
+ * @property numeric $unit_price
+ * @property numeric $total_price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\CheckoutSession $checkoutSession
+ * @property-read \App\Models\Product $product
  * @property-read \App\Models\ProductVariant|null $variant
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereCheckoutSessionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereTotalPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereUnitPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereVariantId($value)
  */
 	class CheckoutItem extends \Eloquent {}
 }
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int|null $user_id
+ * @property string|null $session_id
+ * @property string $type
+ * @property int|null $cart_id
+ * @property numeric $subtotal
+ * @property numeric $discount_amount
+ * @property numeric $tax_amount
+ * @property numeric $shipping_fee
+ * @property numeric $total_amount
+ * @property int|null $coupon_id
+ * @property string|null $coupon_code
+ * @property int|null $delivery_address_id
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $completed_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Cart|null $cart
  * @property-read \App\Models\Coupon|null $coupon
  * @property-read \App\Models\DeliveryAddress|null $deliveryAddress
@@ -181,6 +217,24 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereCartId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereCompletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereCouponCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereCouponId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereDeliveryAddressId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereSessionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereShippingFee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereTaxAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereUserId($value)
  */
 	class CheckoutSession extends \Eloquent {}
 }
@@ -276,6 +330,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Coupon $coupon
+ * @property-read \App\Models\Order|null $order
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CouponUsage query()
@@ -312,6 +368,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\DeliveryAddress|null $defaultDeliveryAddress
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DeliveryAddress> $deliveryAddresses
  * @property-read int|null $delivery_addresses_count
  * @property-read string $full_address
@@ -411,15 +468,33 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property string $order_number
+ * @property int $user_id
+ * @property int $customer_id
+ * @property int|null $checkout_session_id
+ * @property numeric $subtotal
+ * @property numeric $discount_amount
+ * @property numeric $tax_amount
+ * @property numeric $shipping_fee
+ * @property numeric $total_amount
+ * @property int|null $coupon_id
+ * @property string|null $coupon_code
+ * @property int $delivery_address_id
+ * @property string $order_status
+ * @property string|null $notes
+ * @property string|null $cancellation_reason
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\CheckoutSession|null $checkoutSession
  * @property-read \App\Models\Coupon|null $coupon
- * @property-read \App\Models\Customer|null $customer
- * @property-read \App\Models\DeliveryAddress|null $deliveryAddress
+ * @property-read \App\Models\Customer $customer
+ * @property-read \App\Models\DeliveryAddress $deliveryAddress
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
  * @property-read int|null $items_count
- * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\Payment|null $latestPayment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read int|null $payments_count
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order cancelled()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order delivered()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
@@ -430,23 +505,134 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order shipped()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order unpaid()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCancellationReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCheckoutSessionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCouponCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCouponId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryAddressId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDiscountAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereShippingFee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSubtotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTaxAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTotalAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserId($value)
  */
 	class Order extends \Eloquent {}
 }
 
 namespace App\Models{
 /**
- * @property-read \App\Models\Order|null $order
- * @property-read \App\Models\Product|null $product
+ * @property int $id
+ * @property int $order_id
+ * @property int $product_id
+ * @property int|null $variant_id
+ * @property string $product_name
+ * @property string|null $variant_name
+ * @property string|null $sku
+ * @property int $quantity
+ * @property numeric $unit_price
+ * @property numeric $total_price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Order $order
+ * @property-read \App\Models\Product $product
  * @property-read \App\Models\ProductVariant|null $variant
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereProductName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereSku($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereTotalPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUnitPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereVariantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereVariantName($value)
  */
 	class OrderItem extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $order_id
+ * @property int|null $checkout_session_id
+ * @property string $payment_method
+ * @property string $payment_status
+ * @property numeric $amount
+ * @property numeric|null $paid_amount
+ * @property numeric $change_due
+ * @property string $currency
+ * @property string|null $transaction_id
+ * @property string|null $payment_reference
+ * @property string|null $gateway_reference
+ * @property string|null $bank_name
+ * @property string|null $account_number
+ * @property string|null $account_holder_name
+ * @property string|null $slip_path
+ * @property \Illuminate\Support\Carbon|null $transfer_date
+ * @property string|null $delivered_to
+ * @property string|null $delivery_notes
+ * @property array<array-key, mixed>|null $gateway_response
+ * @property string|null $ip_address
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $paid_at
+ * @property \Illuminate\Support\Carbon|null $failed_at
+ * @property int|null $verified_by
+ * @property \Illuminate\Support\Carbon|null $verified_at
+ * @property string|null $verification_notes
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\CheckoutSession|null $checkoutSession
+ * @property-read \App\Models\Order $order
+ * @property-read \App\Models\User|null $verifiedBy
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereAccountHolderName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereAccountNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereBankName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereChangeDue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereCheckoutSessionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereDeliveredTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereDeliveryNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereFailedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereGatewayReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereGatewayResponse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePaidAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePaidAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePaymentMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePaymentReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment wherePaymentStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereSlipPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereTransferDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereVerificationNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Payment whereVerifiedBy($value)
+ */
+	class Payment extends \Eloquent {}
 }
 
 namespace App\Models{

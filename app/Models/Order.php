@@ -180,7 +180,7 @@ class Order extends Model
         // In the future, you can get this value from a settings table:
         // $limitDays = Setting::get('order_cancellation_limit_days', self::CANCELLATION_LIMIT_DAYS);
         $limitDays = self::CANCELLATION_LIMIT_DAYS;
-        
+
         if ($this->created_at->addDays($limitDays)->isPast()) {
             return false;
         }
