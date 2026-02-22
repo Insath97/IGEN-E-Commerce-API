@@ -19,6 +19,8 @@ class InitiateCheckoutRequest extends FormRequest
             'product_id' => 'nullable|exists:products,id',
             'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'nullable|integer|min:1',
+            'cart_item_ids' => 'nullable|array',
+            'cart_item_ids.*' => 'exists:cart_items,id',
         ];
     }
 

@@ -257,10 +257,23 @@ class OrderController extends Controller
                 Coupon::where('id', $checkoutSession->coupon_id)->increment('used_count');
             }
 
-            // Clear cart if cart-based checkout
+            // Clear cart items if cart-based checkout
             if ($checkoutSession->type === 'cart' && $checkoutSession->cart_id) {
-                $checkoutSession->cart->items()->delete();
-                $checkoutSession->cart->update(['status' => 'converted']);
+                // Delete only the items that were part of this checkout
+                foreach ($checkoutSession->items as $checkoutItem) {
+                    if ($checkoutItem->cart_item_id) {
+                        DB::table('cart_items')->where('id', $checkoutItem->cart_item_id)->delete();
+                    }
+                }
+
+                // Check if cart still has items
+                $remainingItemsCount = DB::table('cart_items')
+                    ->where('cart_id', $checkoutSession->cart_id)
+                    ->count();
+
+                if ($remainingItemsCount === 0) {
+                    $checkoutSession->cart->update(['status' => 'converted']);
+                }
             }
 
             // Mark checkout session as completed

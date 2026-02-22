@@ -10,6 +10,7 @@ class CheckoutItem extends Model
         'checkout_session_id',
         'product_id',
         'variant_id',
+        'cart_item_id',
         'quantity',
         'unit_price',
         'total_price',
@@ -37,6 +38,11 @@ class CheckoutItem extends Model
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+    public function cartItem()
+    {
+        return $this->belongsTo(CartItem::class);
     }
 
     /**

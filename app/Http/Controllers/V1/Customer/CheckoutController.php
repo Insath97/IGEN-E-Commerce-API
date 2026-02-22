@@ -105,11 +105,22 @@ class CheckoutController extends Controller
                         'cart_id' => $cart->id,
                     ]);
 
-                    foreach ($cart->items as $cartItem) {
+                    $cartItemIds = $request->cart_item_ids;
+                    $itemsToCheckout = $cart->items;
+
+                    if ($cartItemIds && is_array($cartItemIds)) {
+                        $itemsToCheckout = $cart->items->whereIn('id', $cartItemIds);
+                        if ($itemsToCheckout->isEmpty()) {
+                            throw new \Exception('Selected cart items not found or do not belong to your cart');
+                        }
+                    }
+
+                    foreach ($itemsToCheckout as $cartItem) {
                         CheckoutItem::create([
                             'checkout_session_id' => $checkoutSession->id,
                             'product_id' => $cartItem->product_id,
                             'variant_id' => $cartItem->variant_id,
+                            'cart_item_id' => $cartItem->id,
                             'quantity' => $cartItem->quantity,
                             'unit_price' => $cartItem->unit_price,
                             'total_price' => $cartItem->quantity * $cartItem->unit_price,
