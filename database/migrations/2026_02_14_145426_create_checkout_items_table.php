@@ -16,11 +16,12 @@ return new class extends Migration
             $table->foreignId('checkout_session_id')->constrained('checkout_sessions')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('variant_id')->nullable()->constrained('product_variants')->onDelete('cascade');
+            $table->foreignId('cart_item_id')->nullable()->constrained('cart_items')->nullOnDelete();
             $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 10, 2);
             $table->decimal('total_price', 10, 2);
             $table->timestamps();
-            
+
             // Indexes
             $table->index('checkout_session_id');
         });
