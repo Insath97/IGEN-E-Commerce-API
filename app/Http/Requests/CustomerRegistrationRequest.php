@@ -32,13 +32,6 @@ class CustomerRegistrationRequest extends FormRequest
             'phone' => 'required|string|max:15',
             'have_whatsapp' => 'nullable|boolean',
             'whatsapp_number' => 'required_if:have_whatsapp,true|nullable|string|max:15',
-            'address_line_1' => 'required|string|max:255',
-            'address_line_2' => 'nullable|string|max:255',
-            'landmark' => 'nullable|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'postal_code' => 'required|string|max:20',
         ];
     }
 

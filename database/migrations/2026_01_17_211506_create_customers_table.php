@@ -17,13 +17,6 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->boolean('have_whatsapp')->default(false);
             $table->string('whatsapp_number')->nullable();
-            $table->string('address_line_1')->nullable();
-            $table->string('address_line_2')->nullable();
-            $table->string('landmark')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('country')->default('Sri Lanka');
-            $table->string('postal_code')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->timestamp('verified_at')->nullable();
             $table->enum('verification_level', ['basic', 'standard', 'premium'])->default('basic');

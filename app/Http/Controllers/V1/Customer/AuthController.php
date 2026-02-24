@@ -44,19 +44,11 @@ class AuthController extends Controller
                 'can_login' => true
             ]);
 
-            // Create customer profile
             Customer::create([
                 'user_id' => $user->id,
                 'phone' => $data["phone"],
                 'have_whatsapp' => $data["have_whatsapp"] ?? false,
-                'whatsapp_number' => $data["whatsapp_number"],
-                'address_line_1' => $data["address_line_1"],
-                'address_line_2' => $data["address_line_2"],
-                'landmark' => $data["landmark"],
-                'city' => $data["city"],
-                'state' => $data["state"],
-                'country' => $data["country"] ?? 'Sri Lanka',
-                'postal_code' => $data["postal_code"],
+                'whatsapp_number' => $data["whatsapp_number"] ?? null,
             ]);
 
             // Generate email verification token
