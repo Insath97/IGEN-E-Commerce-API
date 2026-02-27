@@ -159,17 +159,20 @@ namespace App\Models{
  * @property int $checkout_session_id
  * @property int $product_id
  * @property int|null $variant_id
+ * @property int|null $cart_item_id
  * @property int $quantity
  * @property numeric $unit_price
  * @property numeric $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\CartItem|null $cartItem
  * @property-read \App\Models\CheckoutSession $checkoutSession
  * @property-read \App\Models\Product $product
  * @property-read \App\Models\ProductVariant|null $variant
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereCartItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereCheckoutSessionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutItem whereId($value)
@@ -494,6 +497,7 @@ namespace App\Models{
  * @property-read \App\Models\Payment|null $latestPayment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read int|null $payments_count
+ * @property-read \App\Models\ShippingDetail|null $shippingDetail
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order cancelled()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order delivered()
@@ -543,6 +547,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Order $order
  * @property-read \App\Models\Product $product
+ * @property-read \App\Models\ProductReview|null $review
  * @property-read \App\Models\ProductVariant|null $variant
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
@@ -664,8 +669,13 @@ namespace App\Models{
  * @property-read \App\Models\User|null $creator
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Feature> $features
  * @property-read int|null $features_count
+ * @property-read mixed $average_rating
+ * @property-read mixed $rating_distribution
+ * @property-read mixed $total_reviews
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images
  * @property-read int|null $images_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductReview> $reviews
+ * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductSpecification> $specifications
  * @property-read int|null $specifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
@@ -795,6 +805,61 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $user_id
+ * @property int $product_id
+ * @property int|null $variant_id
+ * @property int $order_item_id
+ * @property int $rating
+ * @property string|null $comment
+ * @property bool $is_approved
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductReviewImage> $images
+ * @property-read int|null $images_count
+ * @property-read \App\Models\OrderItem $orderItem
+ * @property-read \App\Models\Product $product
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\ProductVariant|null $variant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereIsApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereOrderItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReview whereVariantId($value)
+ */
+	class ProductReview extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $product_review_id
+ * @property string $image_path
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\ProductReview $review
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage whereImagePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage whereProductReviewId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductReviewImage whereUpdatedAt($value)
+ */
+	class ProductReviewImage extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property int $product_id
  * @property string $specification_name
  * @property string $specification_value
@@ -862,8 +927,12 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User|null $creator
+ * @property-read mixed $average_rating
  * @property-read mixed $current_price
+ * @property-read mixed $total_reviews
  * @property-read \App\Models\Product $product
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductReview> $reviews
+ * @property-read int|null $reviews_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant condition($condition)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant featured()
@@ -903,6 +972,55 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant withoutTrashed()
  */
 	class ProductVariant extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $key
+ * @property string $value
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting whereValue($value)
+ */
+	class Setting extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $order_id
+ * @property string $courier_name
+ * @property string|null $courier_phone
+ * @property string $tracking_number
+ * @property \Illuminate\Support\Carbon $shipped_at
+ * @property \Illuminate\Support\Carbon|null $estimated_delivery_at
+ * @property string|null $shipping_notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Order $order
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereCourierName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereCourierPhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereEstimatedDeliveryAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereShippedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereShippingNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereTrackingNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShippingDetail whereUpdatedAt($value)
+ */
+	class ShippingDetail extends \Eloquent {}
 }
 
 namespace App\Models{
