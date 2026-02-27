@@ -11,6 +11,7 @@ use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\Admin\ReviewController;
 use App\Http\Controllers\V1\Admin\SettingController;
+use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\PermissionController;
 use App\Http\Controllers\V1\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -105,7 +106,6 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::get('{id}/usage', [CouponController::class, 'getCouponUsage']);
     });
 
-    // Order management routes
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
@@ -122,10 +122,15 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}', [ReviewController::class, 'destroy']);
     });
 
-    // Setting management routes
+    Route::prefix('contacts')->group(function () {
+        Route::get('/', [ContactController::class, 'index']);
+        Route::get('{id}', [ContactController::class, 'show']);
+        Route::post('{id}/reply', [ContactController::class, 'reply']);
+    });
+
     Route::prefix('settings')->group(function () {
         Route::get('/', [SettingController::class, 'index']);
-        Route::post('/', [SettingController::class, 'update']); // Using POST for file upload support
+        Route::post('/', [SettingController::class, 'update']);
     });
 
 });

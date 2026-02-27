@@ -7,9 +7,55 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+use App\Http\Requests\ContactRequest;
+use App\Mail\ContactMail;
+use App\Models\Contact;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Mail;
 
 class PublicController extends Controller
 {
+    /**
+     * Send contact mail and store in DB.
+     */
+    public function sendContactMail(ContactRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $data = $request->validated();
+            
+            // Store in database
+            Contact::create($data);
+
+            $shopEmail = Setting::getValue('shop_email', config('mail.from.address'));
+
+            // Specialized try-catch for mailing
+            try {
+                Mail::to($shopEmail)->send(new ContactMail($data));
+            } catch (\Exception $mailException) {
+                // Log the mail error but proceed since DB storage was successful
+                \Log::error('Contact Mail Error: ' . $mailException->getMessage());
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Your message has been received and stored. We will get back to you soon.'
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to process your request. Please try again later.',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     /* featured brand listing */
     public function featuredBrands(Request $request)
     {
