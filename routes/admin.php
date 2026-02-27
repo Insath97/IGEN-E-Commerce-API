@@ -12,8 +12,8 @@ use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\Admin\ReviewController;
 use App\Http\Controllers\V1\Admin\SettingController;
 use App\Http\Controllers\V1\Admin\ContactController;
-use App\Http\Controllers\V1\PermissionController;
-use App\Http\Controllers\V1\RoleController;
+use App\Http\Controllers\V1\Admin\PermissionController;
+use App\Http\Controllers\V1\Admin\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
@@ -27,7 +27,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('permissions', PermissionController::class);
+    Route::apiResource('permissions',PermissionController::class);
 
     Route::get('roles/list/', [RoleController::class, 'getAvailableRoles']);
     Route::apiResource('roles', RoleController::class);
