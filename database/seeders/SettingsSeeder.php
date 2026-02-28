@@ -21,6 +21,10 @@ class SettingsSeeder extends Seeder
                 'key' => 'order_notification_email',
                 'value' => 'admin@gmail.com',
             ],
+            [
+                'key' => 'customer_order_notification_enabled',
+                'value' => '1',
+            ],
         ];
 
         foreach ($settings as $setting) {

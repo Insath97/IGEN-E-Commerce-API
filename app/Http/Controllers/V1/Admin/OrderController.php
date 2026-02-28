@@ -9,6 +9,11 @@ use App\Http\Requests\UpdatePaymentStatusRequest;
 use App\Http\Requests\VerifyOrderRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CustomerOrderCancelledMail;
+use App\Mail\CustomerOrderShippedMail;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -162,6 +167,22 @@ class OrderController extends Controller implements HasMiddleware
                 $order->update([
                     'order_status' => $data['order_status']
                 ]);
+            }
+
+            // Customer Notification Logic
+            try {
+                $isCustomerNotificationEnabled = Setting::getValue('customer_order_notification_enabled', '1') == '1';
+                if ($isCustomerNotificationEnabled && $order->user && $order->user->email) {
+                    if ($data['order_status'] === 'cancelled') {
+                        Mail::to($order->user->email)->send(new CustomerOrderCancelledMail($order));
+                        Log::info("Cancellation email sent to customer: " . $order->user->email . " for order #" . $order->order_number);
+                    } elseif ($data['order_status'] === 'shipped') {
+                        Mail::to($order->user->email)->send(new CustomerOrderShippedMail($order));
+                        Log::info("Shipping email sent to customer: " . $order->user->email . " for order #" . $order->order_number);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to send customer order notification: " . $e->getMessage());
             }
 
             return response()->json([
