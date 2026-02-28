@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
 
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:auth');
 });
 
 // Protected admin routes
@@ -36,8 +36,8 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::prefix('users')->group(function () {
         Route::patch('{id}/activate', [AdminUserController::class, 'activate']);
         Route::patch('{id}/deactivate', [AdminUserController::class, 'deactivate']);
-        Route::patch('{id}/profile-image', [AdminUserController::class, 'updateProfileImage']);
-        Route::delete('{id}/profile-image', [AdminUserController::class, 'removeProfileImage']);
+        Route::patch('{id}/profile-image', [AdminUserController::class, 'updateProfileImage'])->middleware('throttle:uploads');
+        Route::delete('{id}/profile-image', [AdminUserController::class, 'removeProfileImage'])->middleware('throttle:uploads');
     });
 
     Route::apiResource('customers', CustomerController::class);
@@ -52,8 +52,8 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/activate', [BrandController::class, 'activateBrand']);
         Route::patch('{id}/deactivate', [BrandController::class, 'deactivateBrand']);
         Route::delete('{id}/force', [BrandController::class, 'forceDestroy']);
-        Route::patch('{id}/logo', [BrandController::class, 'updateLogo']);
-        Route::delete('{id}/logo', [BrandController::class, 'removeLogo']);
+        Route::patch('{id}/logo', [BrandController::class, 'updateLogo'])->middleware('throttle:uploads');
+        Route::delete('{id}/logo', [BrandController::class, 'removeLogo'])->middleware('throttle:uploads');
         Route::post('{id}/restore', [BrandController::class, 'restore']);
         Route::patch('{id}/toggle-featured', [BrandController::class, 'toggleFeatured']);
     });
@@ -75,8 +75,8 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}/force', [ProductController::class, 'forceDestroy']);
         Route::patch('{id}/activate', [ProductController::class, 'activate']);
         Route::patch('{id}/deactivate', [ProductController::class, 'deactivate']);
-        Route::patch('{id}/primary-image', [ProductController::class, 'updatePrimaryImage']);
-        Route::delete('{id}/primary-image', [ProductController::class, 'removePrimaryImage']);
+        Route::patch('{id}/primary-image', [ProductController::class, 'updatePrimaryImage'])->middleware('throttle:uploads');
+        Route::delete('{id}/primary-image', [ProductController::class, 'removePrimaryImage'])->middleware('throttle:uploads');
         Route::patch('{id}/publish', [ProductController::class, 'publish']);
         Route::patch('{id}/archive', [ProductController::class, 'archive']);
         Route::patch('{id}/set-draft', [ProductController::class, 'setAsDraft']);

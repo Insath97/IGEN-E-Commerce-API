@@ -15,6 +15,10 @@ use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdminOrderNotificationMail;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -276,10 +280,22 @@ class OrderController extends Controller
                 }
             }
 
-            // Mark checkout session as completed
             $checkoutSession->markAsCompleted();
 
             DB::commit();
+
+            // Send mail notification to admin if enabled
+            try {
+                $isNotificationEnabled = Setting::getValue('order_notification_enabled', '1') == '1';
+                if ($isNotificationEnabled) {
+                    $recipientEmail = Setting::getValue('order_notification_email', 'admin@gmail.com');
+                    Mail::to($recipientEmail)->send(new AdminOrderNotificationMail($order));
+                    Log::info('Admin order notification sent for order ID: ' . $order->id . ' to: ' . $recipientEmail);
+                }
+            } catch (\Exception $e) {
+                Log::error('Admin order notification failed: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order created successfully',

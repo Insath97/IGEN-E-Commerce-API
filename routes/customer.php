@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Route;
 // Public customer routes (no authentication required)
 Route::prefix('v1/customer')->group(function () {
 
-    Route::post('register', [AuthController::class, 'register']);
+    Route::post('register', [AuthController::class, 'register'])->middleware('throttle:auth');
     Route::get('verify-email', [AuthController::class, 'verifyEmail']);
     Route::post('resend-verification', [AuthController::class, 'resendVerification']);
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:auth');
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
