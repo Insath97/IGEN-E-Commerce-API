@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AdminOrderNotificationMail;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\LowStockNotification;
+use Illuminate\Support\Facades\Notification;
 
 class OrderController extends Controller
 {
@@ -246,6 +248,21 @@ class OrderController extends Controller
                 // Reduce stock
                 if ($checkoutItem->variant) {
                     $checkoutItem->variant->decrement('stock_quantity', $checkoutItem->quantity);
+
+                    // Low Stock Alert Logic
+                    try {
+                        $lowStockAlertEnabled = Setting::getValue('low_stock_alert_enabled', '1') == '1';
+                        if ($lowStockAlertEnabled && $checkoutItem->variant->isLowStock()) {
+                            $adminEmail = Setting::getValue('order_notification_email', 'admin@gmail.com');
+                            Notification::route('mail', $adminEmail)
+                                ->route('database', '') // Can be empty if we just want it in DB for anybody, but usually we'd notify a user object
+                                ->notify(new LowStockNotification($checkoutItem->variant));
+                            
+                            Log::info('Low stock alert triggered for variant: ' . $checkoutItem->variant->sku);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Low stock alert failed: ' . $e->getMessage());
+                    }
                 }
             }
 

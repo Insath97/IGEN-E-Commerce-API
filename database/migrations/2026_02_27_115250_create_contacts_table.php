@@ -19,6 +19,9 @@ return new class extends Migration
             $table->text('message');
             $table->string('status')->default('pending'); // pending, seen, replied
             $table->boolean('is_replied')->default(false);
+            $table->foreignId('replied_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('replied_at')->nullable();
+             $table->text('reply_message')->nullable();
             $table->timestamps();
         });
     }

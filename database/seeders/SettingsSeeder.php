@@ -25,6 +25,10 @@ class SettingsSeeder extends Seeder
                 'key' => 'customer_order_notification_enabled',
                 'value' => '1',
             ],
+            [
+                'key' => 'low_stock_alert_enabled',
+                'value' => '1',
+            ],
         ];
 
         foreach ($settings as $setting) {
