@@ -9,9 +9,20 @@ use App\Traits\FileUploadTrait;
 use Illuminate\Support\Facades\DB;
 
 
-class SettingController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class SettingController extends Controller implements HasMiddleware
 {
     use FileUploadTrait;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Setting Index', only: ['index']),
+            new Middleware('permission:Setting Update', only: ['update']),
+        ];
+    }
 
     /**
      * Get all settings.

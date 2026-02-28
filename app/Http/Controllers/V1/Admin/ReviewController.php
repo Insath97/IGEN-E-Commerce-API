@@ -7,8 +7,19 @@ use App\Models\ProductReview;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ReviewController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ReviewController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Review Index', only: ['index', 'show']),
+            new Middleware('permission:Review Status Update', only: ['toggleStatus']),
+            new Middleware('permission:Review Delete', only: ['destroy']),
+        ];
+    }
     /**
      * List all reviews with filters
      */
@@ -94,7 +105,7 @@ class ReviewController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => $statusMessage,
-/*                 'data' => $review->fresh('images') */
+                'data' => $review->fresh('images')
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

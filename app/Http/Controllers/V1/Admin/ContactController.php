@@ -10,8 +10,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class ContactController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ContactController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Contact Index', only: ['index']),
+            new Middleware('permission:Contact Show', only: ['show']),
+            new Middleware('permission:Contact Reply', only: ['reply']),
+            new Middleware('permission:Contact Delete', only: ['destroy']),
+        ];
+    }
     /**
      * Display a listing of the contacts.
      */
@@ -30,8 +42,8 @@ class ContactController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('subject', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('subject', 'like', "%{$search}%");
                 });
             }
 
@@ -128,12 +140,39 @@ class ContactController extends Controller
                 'message' => 'Reply sent and stored successfully',
                 'data' => $contact->load('repliedBy:id,name')
             ], 200);
-
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to send reply',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            $contact = Contact::find($id);
+
+            if (!$contact) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cntact mail not found',
+                    'data' => []
+                ], 404);
+            }
+
+            $contact->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Contact mail deleted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete contact mail',
                 'error' => $th->getMessage()
             ], 500);
         }

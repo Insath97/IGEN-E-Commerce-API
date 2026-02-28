@@ -17,9 +17,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class ProductController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ProductController extends Controller implements HasMiddleware
 {
     use FileUploadTrait;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Product Index', only: ['index', 'show', 'getTags', 'getFeatures']),
+            new Middleware('permission:Product Create', only: ['store']),
+            new Middleware('permission:Product Update', only: ['update', 'setAsDraft', 'removePrimaryImage', 'updatePrimaryImage']),
+            new Middleware('permission:Product Delete', only: ['destroy']),
+            new Middleware('permission:Product Force Delete', only: ['forceDestroy']),
+            new Middleware('permission:Product Restore', only: ['restore']),
+            new Middleware('permission:Product Activate', only: ['activate']),
+            new Middleware('permission:Product Deactivate', only: ['deactivate']),
+            new Middleware('permission:Product Featured', only: ['toggleFeatured']),
+            new Middleware('permission:Product Trending', only: ['toggleTrending']),
+            new Middleware('permission:Product Publish', only: ['publish']),
+            new Middleware('permission:Product Archive', only: ['archive']),
+            new Middleware('permission:Variant Activate', only: ['activateVariant']),
+            new Middleware('permission:Variant Deactivate', only: ['deactivateVariant']),
+        ];
+    }
 
     public function index(Request $request)
     {

@@ -27,7 +27,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('permissions',PermissionController::class);
+    Route::apiResource('permissions', PermissionController::class);
 
     Route::get('roles/list/', [RoleController::class, 'getAvailableRoles']);
     Route::apiResource('roles', RoleController::class);
@@ -108,7 +108,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
 
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
-        Route::get('statistics', [\App\Http\Controllers\V1\Admin\OrderController::class, 'statistics']);
+        Route::get('statistics', [OrderController::class, 'statistics']);
         Route::get('{id}', [OrderController::class, 'show']);
         Route::patch('{id}/verify', [OrderController::class, 'verify']);
         Route::patch('{id}/order-status', [OrderController::class, 'updateOrderStatus']);
@@ -126,11 +126,11 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::get('/', [ContactController::class, 'index']);
         Route::get('{id}', [ContactController::class, 'show']);
         Route::post('{id}/reply', [ContactController::class, 'reply']);
+        Route::delete('{id}', [ContactController::class, 'destroy']);
     });
 
     Route::prefix('settings')->group(function () {
         Route::get('/', [SettingController::class, 'index']);
         Route::post('/', [SettingController::class, 'update']);
     });
-
 });

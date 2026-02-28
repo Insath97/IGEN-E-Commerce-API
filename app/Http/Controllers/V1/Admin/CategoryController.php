@@ -9,8 +9,27 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class CategoryController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class CategoryController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Category Index', only: ['index', 'show']),
+            new Middleware('permission:Category List', only: ['activeList']),
+            new Middleware('permission:Category Create', only: ['store']),
+            new Middleware('permission:Category Update', only: ['update']),
+            new Middleware('permission:Category Delete', only: ['destroy']),
+            new Middleware('permission:Category Force Delete', only: ['forceDestroy']),
+            new Middleware('permission:Category Restore', only: ['restore']),
+            new Middleware('permission:Category Activate', only: ['activate']),
+            new Middleware('permission:Category Deactivate', only: ['deactivate']),
+            new Middleware('permission:Category Featured', only: ['toggleFeatured']),
+        ];
+    }
+    
     public function index(Request $request)
     {
         try {

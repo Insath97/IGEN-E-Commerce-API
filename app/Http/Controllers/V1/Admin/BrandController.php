@@ -10,9 +10,27 @@ use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class BrandController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class BrandController extends Controller implements HasMiddleware
 {
     use FileUploadTrait;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Brand Index', only: ['index', 'show']),
+            new Middleware('permission:Brand Create', only: ['store']),
+            new Middleware('permission:Brand Update', only: ['update', 'updateLogo', 'removeLogo']),
+            new Middleware('permission:Brand Delete', only: ['destroy']),
+            new Middleware('permission:Brand Force Delete', only: ['forceDestroy']),
+            new Middleware('permission:Brand Restore', only: ['restore']),
+            new Middleware('permission:Brand Activate', only: ['activateBrand']),
+            new Middleware('permission:Brand Deactivate', only: ['deactivateBrand']),
+            new Middleware('permission:Brand Featured', only: ['toggleFeatured']),
+        ];
+    }
 
     public function index(Request $request)
     {

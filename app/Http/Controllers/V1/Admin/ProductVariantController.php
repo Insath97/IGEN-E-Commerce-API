@@ -9,8 +9,28 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ProductVariantController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ProductVariantController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Product Variant Index', only: ['index', 'show']),
+            new Middleware('permission:Product Variant Create', only: ['store']),
+            new Middleware('permission:Product Variant Update', only: ['update']),
+            new Middleware('permission:Product Variant Delete', only: ['destroy']),
+            new Middleware('permission:Product Variant Force Delete', only: ['forceDestroy']),
+            new Middleware('permission:Product Variant Restore', only: ['restore']),
+            new Middleware('permission:Product Variant Activate', only: ['activate']),
+            new Middleware('permission:Product Variant Deactivate', only: ['deactivate']),
+            new Middleware('permission:Product Variant Toggle', only: ['toggleActive']),
+            new Middleware('permission:Product Variant Featured', only: ['toggleFeatured']),
+            new Middleware('permission:Product Variant Trending', only: ['toggleTrending']),
+        ];
+    }
+
     public function index(Request $request)
     {
         try {
@@ -68,18 +88,21 @@ class ProductVariantController extends Controller
 
     public function store(CreateProductVariantRequest $request)
     {
+        DB::beginTransaction();
         try {
             $data = $request->validated();
             $data['created_by'] = auth('api')->id();
 
             $variant = ProductVariant::create($data);
 
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant created successfully',
                 'data' => $variant->load('product:id,name')
             ], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create product variant',
@@ -117,6 +140,7 @@ class ProductVariantController extends Controller
 
     public function update(UpdateProductVariantRequest $request, $id)
     {
+        DB::beginTransaction();
         try {
             $variant = ProductVariant::find($id);
 
@@ -129,12 +153,14 @@ class ProductVariantController extends Controller
 
             $variant->update($request->validated());
 
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant updated successfully',
                 'data' => $variant->load('product:id,name')
             ], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update product variant',

@@ -7,9 +7,22 @@ use App\Http\Requests\CreatePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class PermissionController extends Controller
+
+class PermissionController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Permission Index', only: ['index', 'show']),
+            new Middleware('permission:Permission Create', only: ['store']),
+            new Middleware('permission:Permission Update', only: ['update']),
+            new Middleware('permission:Permission Delete', only: ['destroy']),
+        ];
+    }
+    
     public function index(Request $request)
     {
         try {

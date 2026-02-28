@@ -10,8 +10,21 @@ use App\Http\Requests\VerifyOrderRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class OrderController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class OrderController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Order Index', only: ['index', 'getCustomerOrders','show']),
+            new Middleware('permission:Order Statistics', only: ['statistics']),
+            new Middleware('permission:Order Verify', only: ['verify']),
+            new Middleware('permission:Order Status Update', only: ['updateOrderStatus']),
+            new Middleware('permission:Order Payment Update', only: ['updatePaymentStatus']),
+        ];
+    }
     /**
      * Get all orders with filters
      */

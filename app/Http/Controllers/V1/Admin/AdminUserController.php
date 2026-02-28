@@ -14,9 +14,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
-class AdminUserController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class AdminUserController extends Controller implements HasMiddleware
 {
     use FileUploadTrait;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Admin User Index', only: ['index', 'show']),
+            new Middleware('permission:Admin User Create', only: ['store']),
+            new Middleware('permission:Admin User Update', only: ['update', 'updateProfileImage', 'removeProfileImage']),
+            new Middleware('permission:Admin User Activate', only: ['activate']),
+            new Middleware('permission:Admin User Deactivate', only: ['deactivate']),
+            new Middleware('permission:Admin User Delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Request $request)
     {

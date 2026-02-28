@@ -5,12 +5,24 @@ namespace App\Http\Controllers\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListCustomerRequest;
 use App\Models\Customer;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CustomerController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class CustomerController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Customer Index', only: ['index','show']),
+            new Middleware('permission:Customer Activate', only: ['activate']),
+            new Middleware('permission:Customer Deactivate', only: ['deactivate']),
+            new Middleware('permission:Customer Verify', only: ['verify']),
+            new Middleware('permission:Customer Delete', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a listing of the customers.
      */

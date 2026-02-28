@@ -21,6 +21,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Permission Delete', 'group_name' => 'Access Management Permissions'],
 
             ['name' => 'Role Index',  'group_name' => 'Access Management Permissions'],
+            ['name' => 'Role List',   'group_name' => 'Access Management Permissions'],
             ['name' => 'Role Create', 'group_name' => 'Access Management Permissions'],
             ['name' => 'Role Update', 'group_name' => 'Access Management Permissions'],
             ['name' => 'Role Delete', 'group_name' => 'Access Management Permissions'],
@@ -29,10 +30,11 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Admin User Create', 'group_name' => 'Access Management Permissions'],
             ['name' => 'Admin User Update', 'group_name' => 'Access Management Permissions'],
             ['name' => 'Admin User Delete', 'group_name' => 'Access Management Permissions'],
+            ['name' => 'Admin User Activate', 'group_name' => 'Access Management Permissions'],
+            ['name' => 'Admin User Deactivate', 'group_name' => 'Access Management Permissions'],
 
             /* Customer Management */
             ['name' => 'Customer Index',  'group_name' => 'Customer Management Permissions'],
-            ['name' => 'Customer Show',   'group_name' => 'Customer Management Permissions'],
             ['name' => 'Customer Create', 'group_name' => 'Customer Management Permissions'],
             ['name' => 'Customer Update', 'group_name' => 'Customer Management Permissions'],
             ['name' => 'Customer Delete', 'group_name' => 'Customer Management Permissions'],
@@ -48,12 +50,17 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Brand Activate', 'group_name' => 'Brand Management Permissions'],
             ['name' => 'Brand Deactivate', 'group_name' => 'Brand Management Permissions'],
             ['name' => 'Brand Featured', 'group_name' => 'Brand Management Permissions'],
+            ['name' => 'Brand Restore', 'group_name' => 'Brand Management Permissions'],
+            ['name' => 'Brand Force Delete', 'group_name' => 'Brand Management Permissions'],
 
             /* Category Management */
             ['name' => 'Category Index',  'group_name' => 'Category Management Permissions'],
+            ['name' => 'Category List',   'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Create', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Update', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Delete', 'group_name' => 'Category Management Permissions'],
+            ['name' => 'Category Restore', 'group_name' => 'Category Management Permissions'],
+            ['name' => 'Category Force Delete', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Activate', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Deactivate', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Featured', 'group_name' => 'Category Management Permissions'],
@@ -64,22 +71,29 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Product Create', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Update', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Delete', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Restore', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Force Delete', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Activate', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Deactivate', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Featured', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Trending', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Publish', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Archive', 'group_name' => 'Product Management Permissions'],
-            ['name' => 'Product Restore', 'group_name' => 'Product Management Permissions'],
-            ['name' => 'Product Force Delete', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Variant Activate', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Variant Deactivate', 'group_name' => 'Product Management Permissions'],
 
             /* Product Variant Management */
             ['name' => 'Product Variant Index',  'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Variant Create', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Variant Update', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Variant Delete', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Variant Restore', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Variant Force Delete', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Variant Activate', 'group_name' => 'Product Management Permissions'],
             ['name' => 'Product Variant Deactivate', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Variant Toggle', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Variant Featured', 'group_name' => 'Product Management Permissions'],
+            ['name' => 'Product Variant Trending', 'group_name' => 'Product Management Permissions'],
 
             /* Coupon Management */
             ['name' => 'Coupon Index',  'group_name' => 'Coupon Management Permissions'],
@@ -88,11 +102,11 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Coupon Delete', 'group_name' => 'Coupon Management Permissions'],
             ['name' => 'Coupon Activate', 'group_name' => 'Coupon Management Permissions'],
             ['name' => 'Coupon Deactivate', 'group_name' => 'Coupon Management Permissions'],
+            ['name' => 'Coupon Toggle', 'group_name' => 'Coupon Management Permissions'],
             ['name' => 'Coupon Usage', 'group_name' => 'Coupon Management Permissions'],
 
             /* Order Management */
             ['name' => 'Order Index',  'group_name' => 'Order Management Permissions'],
-            ['name' => 'Order Show',   'group_name' => 'Order Management Permissions'],
             ['name' => 'Order Statistics', 'group_name' => 'Order Management Permissions'],
             ['name' => 'Order Verify', 'group_name' => 'Order Management Permissions'],
             ['name' => 'Order Status Update', 'group_name' => 'Order Management Permissions'],
@@ -100,7 +114,6 @@ class PermissionsSeeder extends Seeder
 
             /* Review Management */
             ['name' => 'Review Index',  'group_name' => 'Review Management Permissions'],
-            ['name' => 'Review Show',   'group_name' => 'Review Management Permissions'],
             ['name' => 'Review Status Update', 'group_name' => 'Review Management Permissions'],
             ['name' => 'Review Delete', 'group_name' => 'Review Management Permissions'],
 
@@ -108,6 +121,7 @@ class PermissionsSeeder extends Seeder
             ['name' => 'Contact Index',  'group_name' => 'Contact Management Permissions'],
             ['name' => 'Contact Show',   'group_name' => 'Contact Management Permissions'],
             ['name' => 'Contact Reply',  'group_name' => 'Contact Management Permissions'],
+            ['name' => 'Contact Delete', 'group_name' => 'Contact Management Permissions'],
 
             /* Setting Management */
             ['name' => 'Setting Index',  'group_name' => 'Setting Management Permissions'],

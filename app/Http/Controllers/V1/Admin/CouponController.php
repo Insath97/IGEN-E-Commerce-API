@@ -10,8 +10,25 @@ use App\Models\CouponUsage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class CouponController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class CouponController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:Coupon Index', only: ['index', 'show']),
+            new Middleware('permission:Coupon Create', only: ['store']),
+            new Middleware('permission:Coupon Update', only: ['update']),
+            new Middleware('permission:Coupon Delete', only: ['destroy']),
+            new Middleware('permission:Coupon Activate', only: ['activate']),
+            new Middleware('permission:Coupon Deactivate', only: ['deactivate']),
+            new Middleware('permission:Coupon Toggle', only: ['toggleActive']),
+            new Middleware('permission:Coupon Usage', only: ['getAllCouponUsages', 'getCouponUsage']),
+        ];
+    }
+
     public function index(Request $request)
     {
         try {
