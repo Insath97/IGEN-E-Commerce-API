@@ -15,11 +15,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::firstOrCreate(['guard_name' => 'api', 'name' => 'Super Admin']);
-
-        $allPermissions = Permission::all();
-        $role->syncPermissions($allPermissions);
-
         $user = User::create([
             'name' => 'Development Admin',
             'profile_image' => '/image',

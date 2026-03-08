@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionsSeeder extends Seeder
 {
@@ -126,6 +127,10 @@ class PermissionsSeeder extends Seeder
             /* Setting Management */
             ['name' => 'Setting Index',  'group_name' => 'Setting Management Permissions'],
             ['name' => 'Setting Update', 'group_name' => 'Setting Management Permissions'],
+
+            /* CMS Management */
+            ['name' => 'CMS Index',  'group_name' => 'CMS Management Permissions'],
+            ['name' => 'CMS Update', 'group_name' => 'CMS Management Permissions'],
         ];
 
         foreach ($permissions as $permission) {
@@ -135,5 +140,10 @@ class PermissionsSeeder extends Seeder
                 'guard_name' => 'api',
             ]);
         }
+
+        $role = Role::firstOrCreate(['guard_name' => 'api', 'name' => 'Super Admin']);
+
+        $allPermissions = Permission::all();
+        $role->syncPermissions($allPermissions);
     }
 }

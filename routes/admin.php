@@ -11,9 +11,10 @@ use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\Admin\ReviewController;
 use App\Http\Controllers\V1\Admin\SettingController;
+use App\Http\Controllers\V1\Admin\RoleController;
+use App\Http\Controllers\V1\Admin\CmsContentController;
 use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\PermissionController;
-use App\Http\Controllers\V1\Admin\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
@@ -132,5 +133,10 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::prefix('settings')->group(function () {
         Route::get('/', [SettingController::class, 'index']);
         Route::post('/', [SettingController::class, 'update']);
+    });
+
+    Route::prefix('cms')->group(function () {
+        Route::get('/', [CmsContentController::class, 'index']);
+        Route::post('update', [CmsContentController::class, 'update'])->middleware('throttle:uploads');
     });
 });

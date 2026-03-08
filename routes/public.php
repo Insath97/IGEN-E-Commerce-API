@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\V1\Frondend\CMSController;
 use App\Http\Controllers\V1\Frondend\PublicController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,6 @@ Route::prefix('v1/public')->group(function () {
     Route::get('products/{id}', [PublicController::class, 'ProductById']);
 
     Route::post('contact', [PublicController::class, 'sendContactMail']);
+
+    Route::get('cms/{page}', [CMSController::class, 'getPageContent']);
 });
