@@ -8,11 +8,13 @@ use App\Http\Requests\UpdateRoleRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Traits\LogsActivity;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class RoleController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -83,6 +85,8 @@ class RoleController extends Controller implements HasMiddleware
                 $permissions = Permission::whereIn('id', $data['permissions'])->get();
                 $role->syncPermissions($permissions);
             }
+
+            $this->logActivity('Role', 'Create', "Created role: {$role->name}", $data);
 
             return response()->json([
                 'status' => 'success',
@@ -157,6 +161,8 @@ class RoleController extends Controller implements HasMiddleware
 
             $role->load('permissions');
 
+            $this->logActivity('Role', 'Update', "Updated role: {$role->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Role updated successfully',
@@ -206,6 +212,8 @@ class RoleController extends Controller implements HasMiddleware
             }
 
             $role->delete();
+
+            $this->logActivity('Role', 'Delete', "Deleted role: {$role->name}");
 
             return response()->json([
                 'status' => 'success',

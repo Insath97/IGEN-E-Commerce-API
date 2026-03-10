@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Mail\UserCreateMail;
 use App\Models\User;
 use App\Traits\FileUploadTrait;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class AdminUserController extends Controller implements HasMiddleware
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     public static function middleware(): array
     {
@@ -157,6 +158,8 @@ class AdminUserController extends Controller implements HasMiddleware
                 $q->select('id', 'name');
             }]);
 
+            $this->logActivity('Admin User', 'Create', "Created admin user: {$user->email}", $data);
+
             $userData = $user->toArray();
             if (isset($userData['roles'])) {
                 foreach ($userData['roles'] as &$role) {
@@ -271,6 +274,8 @@ class AdminUserController extends Controller implements HasMiddleware
                 $user->syncRoles([$data['role']]);
             }
 
+            $this->logActivity('Admin User', 'Update', "Updated admin user: {$user->email}", $data);
+
             $user->load(['roles' => function ($q) {
                 $q->select('id', 'name');
             }]);
@@ -332,6 +337,8 @@ class AdminUserController extends Controller implements HasMiddleware
             $this->deleteFile($user->profile_image);
             $user->delete();
 
+            $this->logActivity('Admin User', 'Delete', "Deleted admin user: {$user->email}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'User deleted successfully'
@@ -380,6 +387,8 @@ class AdminUserController extends Controller implements HasMiddleware
             }
 
             $user->update(['is_active' => true]);
+
+            $this->logActivity('Admin User', 'Activate', "Activated admin user: {$user->email}");
 
             return response()->json([
                 'status' => 'success',
@@ -430,6 +439,8 @@ class AdminUserController extends Controller implements HasMiddleware
             }
 
             $user->update(['is_active' => false]);
+
+            $this->logActivity('Admin User', 'Deactivate', "Deactivated admin user: {$user->email}");
 
             return response()->json([
                 'status' => 'success',

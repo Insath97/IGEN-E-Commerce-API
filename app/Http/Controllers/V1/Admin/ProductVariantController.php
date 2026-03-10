@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProductVariantRequest;
 use App\Http\Requests\UpdateProductVariantRequest;
 use App\Models\ProductVariant;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class ProductVariantController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -96,6 +98,8 @@ class ProductVariantController extends Controller implements HasMiddleware
             $variant = ProductVariant::create($data);
 
             DB::commit();
+            $this->logActivity('Product Variant', 'Create', "Created variant: {$variant->variant_name} (SKU: {$variant->sku})", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant created successfully',
@@ -154,6 +158,8 @@ class ProductVariantController extends Controller implements HasMiddleware
             $variant->update($request->validated());
 
             DB::commit();
+            $this->logActivity('Product Variant', 'Update', "Updated variant: {$variant->variant_name} (SKU: {$variant->sku})", $request->validated());
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product variant updated successfully',
@@ -209,6 +215,8 @@ class ProductVariantController extends Controller implements HasMiddleware
             }
 
             $variant->restore();
+
+            $this->logActivity('Product Variant', 'Restore', "Restored variant: {$variant->variant_name}");
 
             return response()->json([
                 'status' => 'success',

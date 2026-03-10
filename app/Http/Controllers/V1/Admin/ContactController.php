@@ -9,12 +9,14 @@ use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\LogsActivity;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class ContactController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -135,6 +137,8 @@ class ContactController extends Controller implements HasMiddleware
 
             DB::commit();
 
+            $this->logActivity('Contact', 'Reply', "Replied to contact inquiry from: {$contact->email}", $request->validated());
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Reply sent and stored successfully',
@@ -164,6 +168,8 @@ class ContactController extends Controller implements HasMiddleware
             }
 
             $contact->delete();
+
+            $this->logActivity('Contact', 'Delete', "Deleted contact inquiry from: {$contact->email}");
 
             return response()->json([
                 'status' => 'success',

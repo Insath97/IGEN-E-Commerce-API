@@ -8,12 +8,13 @@ use App\Models\CmsContent;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Traits\LogsActivity;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class CmsContentController extends Controller implements HasMiddleware
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     public static function middleware(): array
     {
@@ -105,6 +106,8 @@ class CmsContentController extends Controller implements HasMiddleware
             }
 
             DB::commit();
+
+            $this->logActivity('CMS', 'Update', "Bulk updated " . count($updatedContents) . " CMS items", $request->validated());
 
             return response()->json([
                 'status' => 'success',

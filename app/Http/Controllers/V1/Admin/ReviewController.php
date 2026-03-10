@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductReview;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Traits\LogsActivity;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class ReviewController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -102,6 +104,8 @@ class ReviewController extends Controller implements HasMiddleware
 
             $statusMessage = $review->is_approved ? 'Review approved successfully' : 'Review unapproved successfully';
 
+            $this->logActivity('Review', 'Toggle Approval', "Toggled approval for review by {$review->user->name} on {$review->product->name}", ['is_approved' => $review->is_approved]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => $statusMessage,
@@ -133,6 +137,8 @@ class ReviewController extends Controller implements HasMiddleware
 
             // Optional: Delete images from storage (FileUploadTrait could be used here)
             $review->delete();
+
+            $this->logActivity('Review', 'Delete', "Deleted review by {$review->user->name} on {$review->product->name}");
 
             return response()->json([
                 'status' => 'success',

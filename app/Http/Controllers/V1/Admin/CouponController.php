@@ -7,6 +7,7 @@ use App\Http\Requests\CreateCouponRequest;
 use App\Http\Requests\UpdateCouponRequest;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,6 +16,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class CouponController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -92,6 +94,8 @@ class CouponController extends Controller implements HasMiddleware
                     $coupon->tiers()->create($tier);
                 }
             }
+
+            $this->logActivity('Coupon', 'Create', "Created coupon: {$coupon->code}", $data);
 
             return response()->json([
                 'status' => 'success',
@@ -172,6 +176,8 @@ class CouponController extends Controller implements HasMiddleware
 
             $coupon->refresh();
 
+            $this->logActivity('Coupon', 'Update', "Updated coupon: {$coupon->code}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Coupon updated successfully',
@@ -200,6 +206,8 @@ class CouponController extends Controller implements HasMiddleware
             }
 
             $coupon->delete();
+
+            $this->logActivity('Coupon', 'Delete', "Deleted coupon: {$coupon->code}");
 
             return response()->json([
                 'status' => 'success',
@@ -236,6 +244,8 @@ class CouponController extends Controller implements HasMiddleware
 
             $coupon->activate();
 
+            $this->logActivity('Coupon', 'Activate', "Activated coupon: {$coupon->code}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Coupon activated successfully',
@@ -271,6 +281,8 @@ class CouponController extends Controller implements HasMiddleware
             }
 
             $coupon->deactivate();
+
+            $this->logActivity('Coupon', 'Deactivate', "Deactivated coupon: {$coupon->code}");
 
             return response()->json([
                 'status' => 'success',

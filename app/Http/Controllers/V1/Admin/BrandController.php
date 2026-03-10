@@ -7,6 +7,7 @@ use App\Http\Requests\CreateBrandrequest;
 use App\Http\Requests\UpdateBrandrequest;
 use App\Models\Brand;
 use App\Traits\FileUploadTrait;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,7 +16,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class BrandController extends Controller implements HasMiddleware
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     public static function middleware(): array
     {
@@ -114,6 +115,8 @@ class BrandController extends Controller implements HasMiddleware
 
             $brand = Brand::create($data);
 
+            $this->logActivity('Brand', 'Create', "Created brand: {$brand->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Brand created successfully',
@@ -190,6 +193,8 @@ class BrandController extends Controller implements HasMiddleware
             $brand->update($data);
             $brand->refresh();
 
+            $this->logActivity('Brand', 'Update', "Updated brand: {$brand->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Brand updated successfully',
@@ -218,6 +223,8 @@ class BrandController extends Controller implements HasMiddleware
             }
 
             $brand->delete();
+
+            $this->logActivity('Brand', 'Delete', "Soft deleted brand: {$brand->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -250,6 +257,8 @@ class BrandController extends Controller implements HasMiddleware
             }
 
             $brand->forceDelete();
+
+            $this->logActivity('Brand', 'Force Delete', "Permanently deleted brand: {$brand->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -289,6 +298,8 @@ class BrandController extends Controller implements HasMiddleware
             }
 
             $brand->restore();
+
+            $this->logActivity('Brand', 'Restore', "Restored brand: {$brand->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -331,6 +342,8 @@ class BrandController extends Controller implements HasMiddleware
 
             $brand->activate();
 
+            $this->logActivity('Brand', 'Activate', "Activated brand: {$brand->name}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Brand activated successfully',
@@ -371,6 +384,8 @@ class BrandController extends Controller implements HasMiddleware
             }
 
             $brand->deactivate();
+
+            $this->logActivity('Brand', 'Deactivate', "Deactivated brand: {$brand->name}");
 
             return response()->json([
                 'status' => 'success',

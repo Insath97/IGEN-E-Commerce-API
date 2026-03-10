@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListCustomerRequest;
 use App\Models\Customer;
+use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -12,6 +13,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class CustomerController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -141,6 +143,8 @@ class CustomerController extends Controller implements HasMiddleware
 
             $user->update(['is_active' => true]);
 
+            $this->logActivity('Customer', 'Activate', "Activated customer account: {$user->email}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Customer account activated successfully',
@@ -179,6 +183,8 @@ class CustomerController extends Controller implements HasMiddleware
 
             $user->update(['is_active' => false]);
 
+            $this->logActivity('Customer', 'Deactivate', "Deactivated customer account: {$user->email}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Customer account deactivated successfully',
@@ -216,6 +222,8 @@ class CustomerController extends Controller implements HasMiddleware
 
             $customer->markAsVerified();
 
+            $this->logActivity('Customer', 'Verify', "Manually verified customer: {$customer->user->email}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Customer verified successfully',
@@ -250,6 +258,8 @@ class CustomerController extends Controller implements HasMiddleware
             // Delete customer and user
             $customer->delete();
             $user->delete();
+
+            $this->logActivity('Customer', 'Delete', "Deleted customer and user account: {$user->email}");
 
             DB::commit();
 

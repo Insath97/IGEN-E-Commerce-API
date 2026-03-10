@@ -13,6 +13,7 @@ use App\Models\ProductSpecification;
 use App\Models\ProductVariant;
 use App\Models\Tag;
 use App\Traits\FileUploadTrait;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,7 +23,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class ProductController extends Controller implements HasMiddleware
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     public static function middleware(): array
     {
@@ -278,6 +279,8 @@ class ProductController extends Controller implements HasMiddleware
 
             // Load relationships
             $product->load(['category', 'brand', 'images', 'variants', 'features', 'specifications', 'tags', 'compatibleProducts', 'bundledProducts']);
+
+            $this->logActivity('Product', 'Create', "Created product: {$product->name}", $data);
 
             return response()->json([
                 'status' => 'success',
@@ -554,6 +557,8 @@ class ProductController extends Controller implements HasMiddleware
             $product->refresh();
             $product->load(['category', 'brand', 'images', 'variants', 'features', 'specifications', 'tags', 'compatibleProducts', 'bundledProducts']);
 
+            $this->logActivity('Product', 'Update', "Updated product: {$product->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product updated successfully',
@@ -592,6 +597,8 @@ class ProductController extends Controller implements HasMiddleware
             }
 
             $product->delete();
+
+            $this->logActivity('Product', 'Delete', "Soft deleted product: {$product->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -789,6 +796,8 @@ class ProductController extends Controller implements HasMiddleware
 
             $product->publish();
 
+            $this->logActivity('Product', 'Publish', "Published product: {$product->name}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Product published successfully',
@@ -829,6 +838,8 @@ class ProductController extends Controller implements HasMiddleware
             }
 
             $product->archive();
+
+            $this->logActivity('Product', 'Archive', "Archived product: {$product->name}");
 
             return response()->json([
                 'status' => 'success',

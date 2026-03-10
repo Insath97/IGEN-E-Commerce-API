@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSettingRequest;
 use App\Models\Setting;
 use App\Traits\FileUploadTrait;
+use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\DB;
 
 
@@ -14,7 +15,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class SettingController extends Controller implements HasMiddleware
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     public static function middleware(): array
     {
@@ -87,6 +88,8 @@ class SettingController extends Controller implements HasMiddleware
             }
 
             DB::commit();
+
+            $this->logActivity('Setting', 'Update', "Updated system settings", $data);
 
             return response()->json([
                 'status' => 'success',

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CustomerOrderCancelledMail;
 use App\Mail\CustomerOrderShippedMail;
 use App\Models\Setting;
+use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -20,6 +21,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class OrderController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -185,6 +187,8 @@ class OrderController extends Controller implements HasMiddleware
                 Log::error("Failed to send customer order notification: " . $e->getMessage());
             }
 
+            $this->logActivity('Order', 'Status Update', "Updated order status for #{$order->order_number} to {$data['order_status']}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order status updated successfully',
@@ -235,6 +239,8 @@ class OrderController extends Controller implements HasMiddleware
                     ]);
                 }
             }
+
+            $this->logActivity('Order', 'Payment Update', "Updated payment status for #{$order->order_number} to {$data['payment_status']}", $data);
 
             return response()->json([
                 'status' => 'success',
@@ -301,6 +307,8 @@ class OrderController extends Controller implements HasMiddleware
                         'message' => 'Unsupported payment method for verification flow',
                     ], 422);
             }
+
+            $this->logActivity('Order', 'Verify', "Verified order #{$order->order_number}: {$message}", $data);
 
             return response()->json([
                 'status' => 'success',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CeateCategoryrequest;
 use App\Http\Requests\UpdateCategoryrequest;
 use App\Models\Category;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,6 +15,7 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class CategoryController extends Controller implements HasMiddleware
 {
+    use LogsActivity;
     public static function middleware(): array
     {
         return [
@@ -101,6 +103,8 @@ class CategoryController extends Controller implements HasMiddleware
 
             $category = Category::create($data);
 
+            $this->logActivity('Category', 'Create', "Created category: {$category->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Category created successfully',
@@ -167,6 +171,8 @@ class CategoryController extends Controller implements HasMiddleware
             $category->refresh();
             $category->load('creator:id,name,email');
 
+            $this->logActivity('Category', 'Update', "Updated category: {$category->name}", $data);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Category updated successfully',
@@ -196,6 +202,8 @@ class CategoryController extends Controller implements HasMiddleware
 
             $category->delete();
 
+            $this->logActivity('Category', 'Delete', "Soft deleted category: {$category->name}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Category deleted successfully'
@@ -223,6 +231,8 @@ class CategoryController extends Controller implements HasMiddleware
             }
 
             $category->forceDelete();
+
+            $this->logActivity('Category', 'Force Delete', "Permanently deleted category: {$category->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -262,6 +272,8 @@ class CategoryController extends Controller implements HasMiddleware
             }
 
             $category->restore();
+
+            $this->logActivity('Category', 'Restore', "Restored category: {$category->name}");
 
             return response()->json([
                 'status' => 'success',
@@ -304,6 +316,8 @@ class CategoryController extends Controller implements HasMiddleware
 
             $category->activate();
 
+            $this->logActivity('Category', 'Activate', "Activated category: {$category->name}");
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Category activated successfully',
@@ -344,6 +358,8 @@ class CategoryController extends Controller implements HasMiddleware
             }
 
             $category->deactivate();
+
+            $this->logActivity('Category', 'Deactivate', "Deactivated category: {$category->name}");
 
             return response()->json([
                 'status' => 'success',

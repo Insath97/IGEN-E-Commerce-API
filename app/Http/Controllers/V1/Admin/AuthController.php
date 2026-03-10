@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use App\Traits\LogsActivity;
 
 class AuthController extends Controller
 {
+    use LogsActivity;
     /**
      * Admin Login
      * Only users with user_type = 'admin' can login here
@@ -122,6 +124,11 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
+            $user = auth('api')->user();
+            if ($user) {
+                $this->logActivity('Auth', 'Logout', "Admin logged out: {$user->email}");
+            }
+
             // Logout the user (invalidates the token)
             Auth::guard('api')->logout();
 
