@@ -131,6 +131,10 @@ class PermissionsSeeder extends Seeder
             /* CMS Management */
             ['name' => 'CMS Index',  'group_name' => 'CMS Management Permissions'],
             ['name' => 'CMS Update', 'group_name' => 'CMS Management Permissions'],
+
+            /* Activity Log Management */
+            ['name' => 'Activity Log Index',  'group_name' => 'Activity Log Permissions'],
+            ['name' => 'Activity Log Show',   'group_name' => 'Activity Log Permissions'],
         ];
 
         foreach ($permissions as $permission) {

@@ -15,6 +15,7 @@ use App\Http\Controllers\V1\Admin\RoleController;
 use App\Http\Controllers\V1\Admin\CmsContentController;
 use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\PermissionController;
+use App\Http\Controllers\V1\Admin\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
@@ -137,5 +138,10 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::prefix('cms')->group(function () {
         Route::get('/', [CmsContentController::class, 'index']);
         Route::post('update', [CmsContentController::class, 'update'])->middleware('throttle:uploads');
+    });
+
+    Route::prefix('activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index']);
+        Route::get('{id}', [ActivityLogController::class, 'show']);
     });
 });
