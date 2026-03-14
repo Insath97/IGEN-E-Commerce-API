@@ -16,6 +16,7 @@ use App\Http\Controllers\V1\Admin\CmsContentController;
 use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\PermissionController;
 use App\Http\Controllers\V1\Admin\ActivityLogController;
+use App\Http\Controllers\V1\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
@@ -27,6 +28,13 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
 
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
+
+    // Dashboard Analytics
+    Route::prefix('dashboard')->group(function () {
+        Route::get('stats', [DashboardController::class, 'index']);
+        Route::get('revenue-trends', [DashboardController::class, 'revenueAnalytics']);
+        Route::get('recent-orders', [DashboardController::class, 'recentOrders']);
+    });
 
     Route::apiResource('permissions', PermissionController::class);
 
