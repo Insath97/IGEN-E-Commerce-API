@@ -87,7 +87,7 @@ class CouponController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to process coupon.',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }

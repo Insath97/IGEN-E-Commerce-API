@@ -51,7 +51,7 @@ class PublicController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to process your request. Please try again later.',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -85,7 +85,7 @@ class PublicController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve featured brands',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -114,7 +114,7 @@ class PublicController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve categories',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -220,7 +220,7 @@ class PublicController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve products',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -278,7 +278,7 @@ class PublicController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve product',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }

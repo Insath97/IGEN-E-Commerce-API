@@ -144,7 +144,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to initiate checkout',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }
@@ -196,7 +196,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Checkout session not found',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 404);
         }
     }
@@ -285,7 +285,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to apply coupon',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 422);
         }
     }
@@ -319,7 +319,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to remove coupon',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }
@@ -368,7 +368,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to set delivery address',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }

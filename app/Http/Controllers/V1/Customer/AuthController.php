@@ -81,7 +81,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -244,7 +244,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Profile update failed',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -400,7 +400,7 @@ class AuthController extends Controller
             $redirectUrl = config('app.frontend_url') . '/auth/callback?token=' . $token . '&type=bearer';
             return redirect($redirectUrl);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Google login failed', 'error' => $e->getMessage()], 401);
+            return response()->json(['success' => false, 'message' => 'Google login failed', 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'], 401);
         }
     }
 
@@ -448,7 +448,7 @@ class AuthController extends Controller
                 ]
             ])->cookie($cookie);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Google authentication failed', 'error' => $e->getMessage()], 401);
+            return response()->json(['success' => false, 'message' => 'Google authentication failed', 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'], 401);
         }
     }
 
@@ -480,7 +480,7 @@ class AuthController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return response()->json(['success' => false, 'message' => 'Failed to create user', 'error' => $e->getMessage()], 500);
+                return response()->json(['success' => false, 'message' => 'Failed to create user', 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'], 500);
             }
         } else {
             if (!$user->google_id) {
@@ -532,7 +532,7 @@ class AuthController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Google account linked successfully']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Failed to link Google account', 'error' => $e->getMessage()], 400);
+            return response()->json(['success' => false, 'message' => 'Failed to link Google account', 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'], 400);
         }
     }
 

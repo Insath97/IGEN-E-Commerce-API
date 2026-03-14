@@ -63,7 +63,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve orders',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -124,7 +124,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve order',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 404);
         }
     }
@@ -323,7 +323,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to create order',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }
@@ -379,7 +379,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to cancel order',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }
@@ -427,7 +427,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to mark order as received',
-                'error' => $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 400);
         }
     }

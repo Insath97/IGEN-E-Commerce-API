@@ -32,7 +32,7 @@ class CMSController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve page content',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }

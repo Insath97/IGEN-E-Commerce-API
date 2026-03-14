@@ -37,7 +37,7 @@ class DeliveryAddressController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve categories',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -80,7 +80,7 @@ class DeliveryAddressController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create delivery address.',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -144,7 +144,7 @@ class DeliveryAddressController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update delivery address.',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -175,7 +175,7 @@ class DeliveryAddressController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete delivery address.',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

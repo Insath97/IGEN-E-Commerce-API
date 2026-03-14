@@ -93,7 +93,7 @@ class ProductReviewController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to submit review',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -119,7 +119,7 @@ class ProductReviewController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve reviews',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

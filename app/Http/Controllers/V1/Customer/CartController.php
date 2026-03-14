@@ -66,7 +66,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to retrieve cart',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -153,7 +153,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to add item to cart',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -218,7 +218,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update cart',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -280,7 +280,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to remove item',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -321,7 +321,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to clear cart',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -381,7 +381,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to merge cart',
-                'error' => $th->getMessage()
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
             ], 500);
         }
     }
