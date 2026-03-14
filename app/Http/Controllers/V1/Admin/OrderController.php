@@ -237,12 +237,22 @@ class OrderController extends Controller implements HasMiddleware
                 ], 404);
             }
 
-            // 1. Validation: Block updates if cancelled or progressed
-            if (in_array($order->order_status, ['shipped', 'delivered', 'cancelled'])) {
+            // 1. Validation: Block updates if cancelled or progressed (with COD exception)
+            if ($order->order_status === 'cancelled') {
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Payment status cannot be updated when order is {$order->order_status}.",
+                    'message' => "Payment status cannot be updated when order is cancelled.",
                 ], 422);
+            }
+
+            if (in_array($order->order_status, ['shipped', 'delivered'])) {
+                $payment = $order->latestPayment;
+                if (!$payment || $payment->payment_method !== 'cash_on_delivery') {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Payment status cannot be updated when order is {$order->order_status}.",
+                    ], 422);
+                }
             }
 
             if ($data['payment_status'] === 'paid') {
