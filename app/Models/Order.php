@@ -153,14 +153,15 @@ class Order extends Model
         $payment = $this->latestPayment;
         if ($payment) {
             $payment->update([
-                'payment_status' => 'completed',
+                'payment_status' => in_array($payment->payment_method, ['card', 'bank_transfer']) ? 'completed' : 'waiting',
+                'is_verified' => true,
                 'verified_by' => $verifiedBy,
                 'verified_at' => now(),
                 'verification_notes' => $notes,
-                'paid_at' => now(),
+                'paid_at' => in_array($payment->payment_method, ['card', 'bank_transfer']) ? now() : $payment->paid_at,
             ]);
         }
-        
+
         $this->markAsProcessing();
     }
 
@@ -188,9 +189,9 @@ class Order extends Model
         $this->update(['order_status' => 'delivered']);
     }
 
-    public function cancel($reason = null)
+    public function cancel($reason = null, $isAdmin = false)
     {
-        if (!$this->canBeCancelled()) {
+        if (!$this->canBeCancelled($isAdmin)) {
             throw new \Exception('This order cannot be cancelled.');
         }
 
@@ -198,23 +199,32 @@ class Order extends Model
             'order_status' => 'cancelled',
             'cancellation_reason' => $reason,
         ]);
+
+        // Sync payment status
+        $payment = $this->latestPayment;
+        if ($payment) {
+            $payment->update([
+                'payment_status' => 'cancelled'
+            ]);
+        }
     }
 
     /**
      * Check if the order can be cancelled based on status and time limit
      */
-    public function canBeCancelled(): bool
+    public function canBeCancelled($isAdmin = false): bool
     {
-        // 1. Check status
+        // 1. Logic for Admin: Can cancel any time BEFORE shipping
+        if ($isAdmin) {
+            return !in_array($this->order_status, ['shipped', 'delivered', 'cancelled']);
+        }
+
+        // 2. Logic for Customer: 3-day limit and not shipped
         if (in_array($this->order_status, ['shipped', 'delivered', 'cancelled'])) {
             return false;
         }
 
-        // 2. Check time limit
-        // In the future, you can get this value from a settings table:
-        // $limitDays = Setting::get('order_cancellation_limit_days', self::CANCELLATION_LIMIT_DAYS);
         $limitDays = self::CANCELLATION_LIMIT_DAYS;
-
         if ($this->created_at->addDays($limitDays)->isPast()) {
             return false;
         }

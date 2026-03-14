@@ -33,6 +33,7 @@ class Payment extends Model
         'verified_by',
         'verified_at',
         'verification_notes',
+        'is_verified',
     ];
 
     protected $casts = [
@@ -44,6 +45,7 @@ class Payment extends Model
         'failed_at' => 'datetime',
         'verified_at' => 'datetime',
         'transfer_date' => 'datetime',
+        'is_verified' => 'boolean',
     ];
 
     public function order()

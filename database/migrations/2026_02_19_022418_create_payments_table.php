@@ -27,6 +27,7 @@ return new class extends Migration
                 'refunded',
                 'cancelled'
             ])->default('pending');
+            $table->boolean('is_verified')->default(false);
             $table->decimal('amount', 10, 2);
             $table->decimal('paid_amount', 10, 2)->nullable();
             $table->decimal('change_due', 10, 2)->default(0); // For cash payments

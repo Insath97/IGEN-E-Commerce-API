@@ -14,6 +14,36 @@
 namespace App\Models{
 /**
  * @property int $id
+ * @property int|null $user_id
+ * @property string $module
+ * @property string $action
+ * @property string|null $description
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property array<array-key, mixed>|null $payload
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereModule($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog wherePayload($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActivityLog whereUserId($value)
+ */
+	class ActivityLog extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property string $name
  * @property string $logo
  * @property string $slug
@@ -240,6 +270,68 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CheckoutSession whereUserId($value)
  */
 	class CheckoutSession extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $page
+ * @property string $section
+ * @property string $key
+ * @property string|null $value
+ * @property string $type
+ * @property string|null $label
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent pageContent(string $page)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereLabel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent wherePage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereSection($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CmsContent whereValue($value)
+ */
+	class CmsContent extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $subject
+ * @property string $message
+ * @property int|null $replied_by
+ * @property string|null $replied_at
+ * @property string|null $reply_message
+ * @property string $status
+ * @property int $is_replied
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $repliedBy
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereIsReplied($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereRepliedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereRepliedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereReplyMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereUpdatedAt($value)
+ */
+	class Contact extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -934,7 +1026,6 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductReview> $reviews
  * @property-read int|null $reviews_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant active()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant condition($condition)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant featured()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant inStock()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductVariant lowStock()

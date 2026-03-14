@@ -365,7 +365,7 @@ class OrderController extends Controller
             }
 
             // Cancel order
-            $order->cancel($data['reason']);
+            $order->cancel($data['reason'], false); // Pass false for Customer (3-day limit)
 
             DB::commit();
 

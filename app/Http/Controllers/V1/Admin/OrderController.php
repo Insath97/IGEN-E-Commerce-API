@@ -146,7 +146,7 @@ class OrderController extends Controller implements HasMiddleware
         $data = $request->validated();
 
         try {
-            $order = Order::find($id);
+            $order = Order::with('latestPayment')->find($id);
 
             if (!$order) {
                 return response()->json([
@@ -155,9 +155,26 @@ class OrderController extends Controller implements HasMiddleware
                 ], 404);
             }
 
+            // 1. Logic Validation: Block updates if cancelled
+            if ($order->order_status === 'cancelled') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This order is cancelled and its status cannot be changed.',
+                ], 422);
+            }
+
             if ($data['order_status'] === 'cancelled') {
-                $order->cancel($data['cancellation_reason']);
+                $order->cancel($data['cancellation_reason'], true); // Pass true for Admin
             } elseif ($data['order_status'] === 'shipped') {
+                // 2. Shipping Restriction: Payment must be verified
+                $payment = $order->latestPayment;
+                if (!$payment || !$payment->is_verified) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Order cannot be shipped until the payment is verified.',
+                    ], 422);
+                }
+
                 $order->markAsShipped([
                     'courier_name' => $data['courier_name'],
                     'courier_phone' => $data['courier_phone'] ?? null,
@@ -211,13 +228,21 @@ class OrderController extends Controller implements HasMiddleware
         $data = $request->validated();
 
         try {
-            $order = Order::find($id);
+            $order = Order::with('latestPayment')->find($id);
 
             if (!$order) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Order not found',
                 ], 404);
+            }
+
+            // 1. Validation: Block updates if cancelled or progressed
+            if (in_array($order->order_status, ['shipped', 'delivered', 'cancelled'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Payment status cannot be updated when order is {$order->order_status}.",
+                ], 422);
             }
 
             if ($data['payment_status'] === 'paid') {
@@ -280,25 +305,28 @@ class OrderController extends Controller implements HasMiddleware
                 ], 422);
             }
 
+            // Prevent double verification
+            if ($payment->is_verified) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This payment is already verified.',
+                ], 422);
+            }
+
             $adminId = auth('api')->id();
             $notes = $data['notes'] ?? null;
 
             // Logic based on payment method
             switch ($payment->payment_method) {
                 case 'bank_transfer':
+                case 'card':
                     $order->confirmPayment($adminId, $notes);
-                    $message = 'Bank transfer verified. Order moved to processing and payment marked as completed.';
+                    $message = ucfirst(str_replace('_', ' ', $payment->payment_method)) . ' verified. Order moved to processing and payment marked as completed.';
                     break;
 
                 case 'cash_on_delivery':
-                    $order->markAsProcessing();
-                    $message = 'COD order moved to processing. Payment status remains pending.';
-                    break;
-
-                case 'card':
-                    // Future logic for manual override if needed
-                    $order->markAsProcessing();
-                    $message = 'Card payment order moved to processing.';
+                    $order->confirmPayment($adminId, $notes);
+                    $message = 'COD order verified. Order moved to processing. Payment status updated to waiting.';
                     break;
 
                 default:
