@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\ProductVariant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,18 +22,22 @@ class DashboardController extends Controller
         try {
             // Basic Metrics
             $totalOrders = Order::count();
-            $totalRevenue = Order::paid()->sum('total_amount');
-
-            $newCustomersCount = Customer::where('created_at', '>=', now()->subDays(30))->count();
+            $totalRevenue = (float) Order::paid()->sum('total_amount');
+            $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+            
+            $totalCustomers = User::where('user_type', 'customer')->count();
+            $newCustomersCount = User::where('user_type', 'customer')
+                ->where('created_at', '>=', now()->subDays(30))
+                ->count();
 
             // Growth Rate Calculation (Month over Month)
-            $currentMonthRevenue = Order::paid()
-            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-            ->sum('total_amount');
+            $currentMonthRevenue = (float) Order::paid()
+                ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+                ->sum('total_amount');
 
-            $lastMonthRevenue = Order::paid()
-            ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
-            ->sum('total_amount');
+            $lastMonthRevenue = (float) Order::paid()
+                ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
+                ->sum('total_amount');
 
             $revenueGrowthRate = 0;
             if ($lastMonthRevenue > 0) {
@@ -41,14 +46,47 @@ class DashboardController extends Controller
                 $revenueGrowthRate = 100;
             }
 
+            // Inventory & Products
+            $lowStockCount = ProductVariant::where('stock_quantity', '<=', DB::raw('low_stock_threshold'))
+                ->orWhere('stock_quantity', '<', 10)
+                ->count();
+
+            $topSellingProducts = DB::table('order_items')
+                ->join('products', 'order_items.product_id', '=', 'products.id')
+                ->select('products.name', DB::raw('SUM(order_items.quantity * order_items.unit_price) as revenue'))
+                ->groupBy('products.id', 'products.name')
+                ->orderByDesc('revenue')
+                ->limit(5)
+                ->get();
+
+            // Status Distribution
+            $statusDistribution = Order::select('order_status', DB::raw('count(*) as count'))
+                ->groupBy('order_status')
+                ->get()
+                ->pluck('count', 'order_status');
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Dashboard statistics retrieved successfully',
                 'data' => [
-                    'total_revenue' => (float) $totalRevenue,
-                    'total_orders' => $totalOrders,
-                    'new_customers' => $newCustomersCount,
-                    'revenue_growth_rate' => round($revenueGrowthRate, 2),
+                    'revenue' => [
+                        'total' => $totalRevenue,
+                        'average_order_value' => round($averageOrderValue, 2),
+                        'growth_rate' => round($revenueGrowthRate, 2),
+                        'current_month' => $currentMonthRevenue,
+                    ],
+                    'orders' => [
+                        'total' => $totalOrders,
+                        'status_distribution' => $statusDistribution,
+                    ],
+                    'customers' => [
+                        'total' => $totalCustomers,
+                        'new_30_days' => $newCustomersCount,
+                    ],
+                    'inventory' => [
+                        'low_stock_count' => $lowStockCount,
+                    ],
+                    'top_selling_products' => $topSellingProducts,
                 ]
             ], 200);
         } catch (\Throwable $th) {
