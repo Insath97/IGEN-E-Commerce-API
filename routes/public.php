@@ -11,6 +11,8 @@ Route::prefix('v1/public')->group(function () {
     Route::get('categories', [PublicController::class, 'getCategories']);
 
     Route::get('products', [PublicController::class, 'productsGetAll']);
+    Route::get('trending-products', [PublicController::class, 'trendingProducts']);
+    Route::get('featured-products', [PublicController::class, 'featuredProducts']);
     Route::get('products/{id}', [PublicController::class, 'ProductById']);
 
     Route::post('contact', [PublicController::class, 'sendContactMail']);

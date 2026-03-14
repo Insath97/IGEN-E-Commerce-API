@@ -282,4 +282,112 @@ class PublicController extends Controller
             ], 500);
         }
     }
+
+    /* trending product list */
+    public function trendingProducts(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $products = Product::select([
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'primary_image_path',
+                'is_trending',
+                'is_active',
+                'condition'
+            ])->with([
+                'category:id,name,slug',
+                'brand:id,name,slug,logo,website',
+                'images:id,product_id,image_path',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+            ])
+                ->active()
+                ->published()
+                ->trending()
+                ->ordered()
+                ->limit($limit)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No trending products found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Trending products retrieved successfully',
+                'data' => $products
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve trending products',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* featured product list */
+    public function featuredProducts(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $products = Product::select([
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'primary_image_path',
+                'is_featured',
+                'is_active',
+                'condition'
+            ])->with([
+                'category:id,name,slug',
+                'brand:id,name,slug,logo,website',
+                'images:id,product_id,image_path',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+            ])
+                ->active()
+                ->published()
+                ->featured()
+                ->ordered()
+                ->limit($limit)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No featured products found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Featured products retrieved successfully',
+                'data' => $products
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve featured products',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
 }
