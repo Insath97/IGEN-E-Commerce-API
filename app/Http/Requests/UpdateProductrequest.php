@@ -35,6 +35,7 @@ class UpdateProductrequest extends FormRequest
             'brand_id' => 'sometimes|exists:brands,id',
             'type' => 'sometimes|in:physical,digital,service',
             'status' => 'nullable|in:draft,published,archived',
+            'condition' => 'nullable|in:new,used,refurbished',
 
             // Descriptions
             'short_description' => 'nullable|string|max:500',
@@ -164,7 +165,6 @@ class UpdateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
-            'variants.*.condition' => 'sometimes|nullable|in:new,used,refurbished',
 
             // Relationships (comma-separated strings)
             'compatible_product_ids' => 'nullable|string|max:1000',

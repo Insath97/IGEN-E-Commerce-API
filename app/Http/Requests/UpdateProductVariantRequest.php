@@ -42,7 +42,6 @@ class UpdateProductVariantRequest extends FormRequest
             'is_trending' => 'boolean',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'condition' => 'sometimes|nullable|in:new,used,refurbished',
         ];
     }
 

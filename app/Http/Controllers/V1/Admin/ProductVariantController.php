@@ -61,7 +61,9 @@ class ProductVariantController extends Controller implements HasMiddleware
             }
 
             if ($request->has('condition')) {
-                $query->where('condition', $request->condition);
+                $query->whereHas('product', function($q) use ($request) {
+                    $q->where('condition', $request->condition);
+                });
             }
 
             $variants = $query->paginate($perPage);

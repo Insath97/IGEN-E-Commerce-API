@@ -32,6 +32,7 @@ class CeateProductrequest extends FormRequest
             'brand_id' => 'required|exists:brands,id',
             'type' => 'required|in:physical,digital,service',
             'status' => 'nullable|in:draft,published,archived',
+            'condition' => 'nullable|in:new,used,refurbished',
 
             // Pricing (base prices - variants will have their own)
             'price' => 'nullable|numeric|min:0',
@@ -80,7 +81,6 @@ class CeateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
-            'variants.*.condition' => 'nullable|in:new,used,refurbished',
 
             // Relationships
             'compatible_product_ids' => 'nullable|integer|exists:products,id',

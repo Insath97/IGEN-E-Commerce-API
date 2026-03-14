@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('primary_image_path')->nullable();
             $table->enum('type', ['physical', 'digital', 'service'])->default('physical');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
+            $table->enum('condition', ['new', 'used', 'refurbished'])->default('new');
             $table->text('short_description')->nullable();
             $table->text('full_description')->nullable();
             $table->boolean('is_trending')->default(true);

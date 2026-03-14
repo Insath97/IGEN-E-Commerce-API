@@ -39,10 +39,10 @@ class CartController extends Controller
 
             $cart = Cart::with([
                 'items.product' => function ($query) {
-                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description', 'condition');
                 },
                 'items.variant' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size');
                 }
             ])
                 ->where('user_id', $user->id)
@@ -136,10 +136,10 @@ class CartController extends Controller
 
             $cartResult = $cart->fresh([
                 'items.product' => function ($query) {
-                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description', 'condition');
                 },
                 'items.variant' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size');
                 }
             ]);
 
@@ -202,10 +202,10 @@ class CartController extends Controller
 
             $cartResult = $cart->fresh([
                 'items.product' => function ($query) {
-                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description', 'condition');
                 },
                 'items.variant' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size');
                 }
             ]);
 
@@ -264,10 +264,10 @@ class CartController extends Controller
 
             $cartResult = $cart->fresh([
                 'items.product' => function ($query) {
-                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description', 'condition');
                 },
                 'items.variant' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size');
                 }
             ]);
 
@@ -364,10 +364,10 @@ class CartController extends Controller
 
             $cartResult = $userCart->fresh([
                 'items.product' => function ($query) {
-                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description');
+                    $query->select('id', 'name', 'slug', 'primary_image_path', 'type', 'short_description', 'condition');
                 },
                 'items.variant' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size', 'condition');
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'offer_price', 'color', 'storage_size', 'ram_size');
                 }
             ]);
 

@@ -22,6 +22,7 @@ class Product extends Model
         'primary_image_path',
         'type',
         'status',
+        'condition',
         'short_description',
         'full_description',
         'is_trending',
