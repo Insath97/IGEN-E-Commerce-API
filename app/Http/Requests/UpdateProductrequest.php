@@ -50,6 +50,7 @@ class UpdateProductrequest extends FormRequest
             'is_trending' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
 
             // Features (comma-separated string)
             'feature_name' => 'nullable|string|max:1000',
@@ -165,6 +166,7 @@ class UpdateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
+            'variants.*.is_new_arrival' => 'nullable|boolean',
 
             // Relationships (comma-separated strings)
             'compatible_product_ids' => 'nullable|string|max:1000',

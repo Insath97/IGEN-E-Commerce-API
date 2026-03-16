@@ -855,6 +855,37 @@ class ProductController extends Controller implements HasMiddleware
         }
     }
 
+
+
+    public function toggleNewArrival(string $id)
+    {
+        try {
+            $product = Product::find($id);
+
+            if (!$product) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Product not found',
+                    'data' => []
+                ], 404);
+            }
+
+            $product->toggleNewArrival();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product new arrival status toggled successfully',
+                'data' => $product
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to toggle product new arrival status',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
     public function setAsDraft(string $id)
     {
         try {

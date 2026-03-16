@@ -91,6 +91,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/set-draft', [ProductController::class, 'setAsDraft']);
         Route::patch('{id}/toggle-trending', [ProductController::class, 'toggleTrending']);
         Route::patch('{id}/toggle-featured', [ProductController::class, 'toggleFeatured']);
+        Route::patch('{id}/toggle-new-arrival', [ProductController::class, 'toggleNewArrival']);
         Route::get('get/tags', [ProductController::class, 'getTags']);
         Route::get('get/features', [ProductController::class, 'getFeatures']);
     });
@@ -104,6 +105,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::patch('{id}/toggle-active', [ProductVariantController::class, 'toggleActive']);
         Route::patch('{id}/toggle-featured', [ProductVariantController::class, 'toggleFeatured']);
         Route::patch('{id}/toggle-trending', [ProductVariantController::class, 'toggleTrending']);
+        Route::patch('{id}/toggle-new-arrival', [ProductVariantController::class, 'toggleNewArrival']);
     });
 
     Route::apiResource('coupons', CouponController::class);

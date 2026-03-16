@@ -30,6 +30,7 @@ class ProductVariant extends Model
         'is_trending',
         'is_active',
         'is_featured',
+        'is_new_arrival',
         'created_by'
     ];
 
@@ -41,6 +42,7 @@ class ProductVariant extends Model
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'is_new_arrival' => 'boolean',
     ];
 
     protected $appends = [
@@ -92,6 +94,11 @@ class ProductVariant extends Model
     public function scopeTrending($query)
     {
         return $query->where('is_trending', true);
+    }
+
+    public function scopeNewArrival($query)
+    {
+        return $query->where('is_new_arrival', true);
     }
 
     public function scopeInStock($query)
@@ -166,5 +173,10 @@ class ProductVariant extends Model
     public function toggleFeatured()
     {
         $this->update(['is_featured' => !$this->is_featured]);
+    }
+
+    public function toggleNewArrival()
+    {
+        $this->update(['is_new_arrival' => !$this->is_new_arrival]);
     }
 }

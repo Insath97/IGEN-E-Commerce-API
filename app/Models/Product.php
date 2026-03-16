@@ -28,6 +28,7 @@ class Product extends Model
         'is_trending',
         'is_active',
         'is_featured',
+        'is_new_arrival',
         'created_by'
     ];
 
@@ -35,6 +36,7 @@ class Product extends Model
         'is_trending' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'is_new_arrival' => 'boolean',
     ];
 
     protected $appends = [
@@ -130,6 +132,11 @@ class Product extends Model
         return $query->where('is_trending', true);
     }
 
+    public function scopeNewArrival($query)
+    {
+        return $query->where('is_new_arrival', true);
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
@@ -186,6 +193,11 @@ class Product extends Model
     public function toggleFeatured()
     {
         $this->update(['is_featured' => !$this->is_featured]);
+    }
+
+    public function toggleNewArrival()
+    {
+        $this->update(['is_new_arrival' => !$this->is_new_arrival]);
     }
 
     public function getAverageRatingAttribute()

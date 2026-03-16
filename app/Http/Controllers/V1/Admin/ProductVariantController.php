@@ -417,4 +417,33 @@ class ProductVariantController extends Controller implements HasMiddleware
             ], 500);
         }
     }
+
+    public function toggleNewArrival($id)
+    {
+        try {
+            $variant = ProductVariant::find($id);
+
+            if (!$variant) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Product variant not found'
+                ], 404);
+            }
+
+            $variant->toggleNewArrival();
+
+            $status = $variant->is_new_arrival ? 'new_arrival' : 'normal';
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Product variant set to {$status} successfully",
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to toggle new arrival status',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
 }

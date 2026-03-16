@@ -51,6 +51,7 @@ class CeateProductrequest extends FormRequest
             'is_trending' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
 
             // Features & Specifications
             'feature_name' => 'required|string|max:255',
@@ -81,6 +82,7 @@ class CeateProductrequest extends FormRequest
             'variants.*.is_trending' => 'nullable|boolean',
             'variants.*.is_active' => 'nullable|boolean',
             'variants.*.is_featured' => 'nullable|boolean',
+            'variants.*.is_new_arrival' => 'nullable|boolean',
 
             // Relationships
             'compatible_product_ids' => 'nullable|integer|exists:products,id',

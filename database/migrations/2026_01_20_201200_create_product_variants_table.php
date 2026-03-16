@@ -31,6 +31,7 @@ return new class extends Migration
             $table->boolean('is_trending')->default(true);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
+             $table->boolean('is_new_arrival')->default(false);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();

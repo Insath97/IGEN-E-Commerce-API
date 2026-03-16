@@ -390,4 +390,256 @@ class PublicController extends Controller
             ], 500);
         }
     }
+
+    /* new arrival product list */
+    public function newArrivalProducts(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $products = Product::select([
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'primary_image_path',
+                'is_new_arrival',
+                'is_active',
+                'condition'
+            ])->with([
+                'category:id,name,slug',
+                'brand:id,name,slug,logo,website',
+                'images:id,product_id,image_path',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+            ])
+                ->active()
+                ->published()
+                ->newArrival()
+                ->ordered()
+                ->limit($limit)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No new arrival products found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'New arrival products retrieved successfully',
+                'data' => $products
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve new arrival products',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* offer product list */
+    public function offerProducts(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $products = Product::select([
+                'id',
+                'name',
+                'slug',
+                'code',
+                'category_id',
+                'brand_id',
+                'type',
+                'short_description',
+                'primary_image_path',
+                'is_active',
+                'condition'
+            ])->with([
+                'category:id,name,slug',
+                'brand:id,name,slug,logo,website',
+                'images:id,product_id,image_path',
+                'variants' => function ($query) {
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'stock_quantity', 'is_offer', 'offer_price')
+                          ->where('is_offer', true)
+                          ->whereNotNull('offer_price')
+                          ->where('offer_price', '>', 0);
+                },
+            ])
+                ->whereHas('variants', function ($query) {
+                    $query->where('is_offer', true)
+                          ->whereNotNull('offer_price')
+                          ->where('offer_price', '>', 0);
+                })
+                ->active()
+                ->published()
+                ->ordered()
+                ->limit($limit)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No offer products found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Offer products retrieved successfully',
+                'data' => $products
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve offer products',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* trending variant list */
+    public function trendingVariants(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $variants = \App\Models\ProductVariant::with(['product:id,name,slug,primary_image_path'])
+                ->active()
+                ->trending()
+                ->limit($limit)
+                ->get();
+
+            if ($variants->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No trending variants found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Trending variants retrieved successfully',
+                'data' => $variants
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve trending variants',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* featured variant list */
+    public function featuredVariants(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $variants = \App\Models\ProductVariant::with(['product:id,name,slug,primary_image_path'])
+                ->active()
+                ->featured()
+                ->limit($limit)
+                ->get();
+
+            if ($variants->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No featured variants found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Featured variants retrieved successfully',
+                'data' => $variants
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve featured variants',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* new arrival variant list */
+    public function newArrivalVariants(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $variants = \App\Models\ProductVariant::with(['product:id,name,slug,primary_image_path'])
+                ->active()
+                ->newArrival()
+                ->limit($limit)
+                ->get();
+
+            if ($variants->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No new arrival variants found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'New arrival variants retrieved successfully',
+                'data' => $variants
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve new arrival variants',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /* offer variant list */
+    public function offerVariants(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5);
+
+            $variants = \App\Models\ProductVariant::with(['product:id,name,slug,primary_image_path'])
+                ->active()
+                ->onOffer()
+                ->limit($limit)
+                ->get();
+
+            if ($variants->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'No offer variants found',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Offer variants retrieved successfully',
+                'data' => $variants
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve offer variants',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
 }
