@@ -42,6 +42,7 @@ class Product extends Model
     protected $appends = [
         'average_rating',
         'total_reviews',
+        'time_ago',
     ];
 
     public function category(): BelongsTo
@@ -217,5 +218,10 @@ class Product extends Model
             $distribution[$i] = $this->reviews()->where('is_approved', true)->where('rating', $i)->count();
         }
         return $distribution;
+    }
+
+    public function getTimeAgoAttribute()
+    {
+        return $this->created_at ? $this->created_at->diffForHumans() : null;
     }
 }

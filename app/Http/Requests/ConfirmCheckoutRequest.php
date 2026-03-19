@@ -20,7 +20,7 @@ class ConfirmCheckoutRequest extends FormRequest
     {
         return [
             'payment_method' => 'required|in:card,cash_on_delivery,bank_transfer',
-            'payment_slip' => 'required_if:payment_method,bank_transfer|image|mimes:jpeg,png,jpg,pdf|max:5120',
+            'payment_slip' => 'required_if:payment_method,bank_transfer|mimes:jpeg,png,jpg,pdf|max:15360',
         ];
     }
 
@@ -30,8 +30,8 @@ class ConfirmCheckoutRequest extends FormRequest
             'payment_method.required' => 'Please select a payment method',
             'payment_method.in' => 'Invalid payment method selected',
             'payment_slip.required_if' => 'Payment slip is required for bank transfer payments',
-            'payment_slip.image' => 'Payment slip must be an image',
-            'payment_slip.max' => 'Payment slip size must not exceed 5MB',
+            'payment_slip.mimes' => 'Payment slip must be a file of type: jpeg, png, jpg, pdf',
+            'payment_slip.max' => 'Payment slip size must not exceed 15MB',
         ];
     }
 

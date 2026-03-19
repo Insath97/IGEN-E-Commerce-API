@@ -48,6 +48,7 @@ class ProductVariant extends Model
     protected $appends = [
         'average_rating',
         'total_reviews',
+        'time_ago',
     ];
 
     /**
@@ -178,5 +179,10 @@ class ProductVariant extends Model
     public function toggleNewArrival()
     {
         $this->update(['is_new_arrival' => !$this->is_new_arrival]);
+    }
+
+    public function getTimeAgoAttribute()
+    {
+        return $this->created_at ? $this->created_at->diffForHumans() : null;
     }
 }
