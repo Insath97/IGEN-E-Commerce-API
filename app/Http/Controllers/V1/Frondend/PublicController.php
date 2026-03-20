@@ -141,12 +141,13 @@ class PublicController extends Controller
                 'is_trending',
                 'is_active',
                 'is_featured',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured',
+                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured,created_at',
                 'features:id,name',
                 'specifications:id,product_id,specification_name,specification_value',
                 'tags:id,name,slug',
@@ -245,12 +246,13 @@ class PublicController extends Controller
                 'is_trending',
                 'is_active',
                 'is_featured',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured',
+                'variants:id,product_id,variant_name,sku,barcode,warranty_period,storage_size,ram_size,color,price,sales_price,stock_quantity,low_stock_threshold,is_offer,offer_price,is_trending,is_active,is_featured,created_at',
                 'features:id,name',
                 'specifications:id,product_id,specification_name,specification_value',
                 'tags:id,name,slug',
@@ -301,12 +303,13 @@ class PublicController extends Controller
                 'primary_image_path',
                 'is_trending',
                 'is_active',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price,created_at',
             ])
                 ->active()
                 ->published()
@@ -355,12 +358,13 @@ class PublicController extends Controller
                 'primary_image_path',
                 'is_featured',
                 'is_active',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price,created_at',
             ])
                 ->active()
                 ->published()
@@ -409,12 +413,13 @@ class PublicController extends Controller
                 'primary_image_path',
                 'is_new_arrival',
                 'is_active',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
-                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price',
+                'variants:id,product_id,variant_name,sku,price,sales_price,stock_quantity,is_offer,offer_price,created_at',
             ])
                 ->active()
                 ->published()
@@ -462,13 +467,14 @@ class PublicController extends Controller
                 'short_description',
                 'primary_image_path',
                 'is_active',
-                'condition'
+                'condition',
+                'created_at'
             ])->with([
                 'category:id,name,slug',
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
                 'variants' => function ($query) {
-                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'stock_quantity', 'is_offer', 'offer_price')
+                    $query->select('id', 'product_id', 'variant_name', 'sku', 'price', 'sales_price', 'stock_quantity', 'is_offer', 'offer_price', 'created_at')
                           ->where('is_offer', true)
                           ->whereNotNull('offer_price')
                           ->where('offer_price', '>', 0);
