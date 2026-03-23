@@ -20,6 +20,7 @@ use App\Mail\AdminOrderNotificationMail;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\LowStockNotification;
+use App\Notifications\NewOrderTelegramNotification;
 use Illuminate\Support\Facades\Notification;
 
 class OrderController extends Controller
@@ -301,13 +302,27 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // Send mail notification to admin if enabled
+            // Send mail and telegram notification to admin if enabled
             try {
                 $isNotificationEnabled = Setting::getValue('order_notification_enabled', '1') == '1';
                 if ($isNotificationEnabled) {
                     $recipientEmail = Setting::getValue('order_notification_email', 'admin@gmail.com');
+                    
+                    // 1. Send Email
                     Mail::to($recipientEmail)->send(new AdminOrderNotificationMail($order));
-                    Log::info('Admin order notification sent for order ID: ' . $order->id . ' to: ' . $recipientEmail);
+                    Log::info('Admin order email notification sent for order ID: ' . $order->id);
+
+                    // 2. Send Telegram
+                    $telegramBotToken = env('TELEGRAM_BOT_TOKEN');
+                    $telegramChatId = env('TELEGRAM_CHAT_ID');
+
+                    if ($telegramBotToken && $telegramChatId) {
+                        Notification::route('telegram', $telegramChatId)
+                            ->notify(new NewOrderTelegramNotification($order));
+                        Log::info('Admin order telegram notification sent for order ID: ' . $order->id);
+                    } else {
+                        Log::warning('Telegram notification skipped: credentials not found in .env');
+                    }
                 }
             } catch (\Exception $e) {
                 Log::error('Admin order notification failed: ' . $e->getMessage());
