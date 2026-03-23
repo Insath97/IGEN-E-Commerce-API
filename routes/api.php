@@ -16,4 +16,9 @@ require __DIR__ . '/admin.php';
 /* customer routes */
 require __DIR__ . '/customer.php';
 
+// Test route for sanitization verification (Remove in production if needed)
+Route::post('/test-sanitization', function (\Illuminate\Http\Request $request) {
+    return response()->json($request->all());
+});
+
 
