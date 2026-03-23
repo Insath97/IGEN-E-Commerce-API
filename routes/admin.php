@@ -36,6 +36,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::get('recent-orders', [DashboardController::class, 'recentOrders']);
     });
 
+    Route::get('permissions/list/', [PermissionController::class, 'getAvailablePermissions']);
     Route::apiResource('permissions', PermissionController::class);
 
     Route::get('roles/list/', [RoleController::class, 'getAvailableRoles']);
@@ -65,6 +66,7 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
         Route::delete('{id}/logo', [BrandController::class, 'removeLogo'])->middleware('throttle:uploads');
         Route::post('{id}/restore', [BrandController::class, 'restore']);
         Route::patch('{id}/toggle-featured', [BrandController::class, 'toggleFeatured']);
+        Route::get('active/list', [BrandController::class, 'activeList']);
     });
 
     Route::apiResource('categories', CategoryController::class);

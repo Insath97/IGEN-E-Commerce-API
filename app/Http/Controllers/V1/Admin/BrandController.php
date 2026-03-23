@@ -519,4 +519,26 @@ class BrandController extends Controller implements HasMiddleware
             ], 500);
         }
     }
+
+    public function activeList()
+    {
+        try {
+            $brands = Brand::where('is_active', true)
+                ->select('id', 'name')
+                ->orderBy('name', 'asc')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Active brands retrieved successfully',
+                'data' => $brands
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve active brands',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
 }

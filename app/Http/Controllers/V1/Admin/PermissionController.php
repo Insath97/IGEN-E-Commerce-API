@@ -211,4 +211,23 @@ class PermissionController extends Controller implements HasMiddleware
             ], 500);
         }
     }
+
+    public function getAvailablePermissions()
+    {
+        try {
+            $permissions = Permission::select('id','group_name','name')->orderBy('id', 'asc')->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Permissions retrieved successfully',
+                'data' => $permissions
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve permissions',
+                'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
 }

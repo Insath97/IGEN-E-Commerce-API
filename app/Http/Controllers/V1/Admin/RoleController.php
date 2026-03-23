@@ -235,7 +235,11 @@ class RoleController extends Controller implements HasMiddleware
 
             $query = Role::query();
 
-            if (!$user->isSuperAdmin() && $user->hasRole('Super Admin')) {
+            if ($user->hasRole('Super Admin')) {
+                // If user is a Super Admin, only show the Super Admin role
+                $query->where('name', 'Super Admin');
+            } else {
+                // Otherwise, show all roles EXCEPT Super Admin
                 $query->where('name', '!=', 'Super Admin');
             }
 

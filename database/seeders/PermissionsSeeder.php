@@ -56,7 +56,6 @@ class PermissionsSeeder extends Seeder
 
             /* Category Management */
             ['name' => 'Category Index',  'group_name' => 'Category Management Permissions'],
-            ['name' => 'Category List',   'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Create', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Update', 'group_name' => 'Category Management Permissions'],
             ['name' => 'Category Delete', 'group_name' => 'Category Management Permissions'],

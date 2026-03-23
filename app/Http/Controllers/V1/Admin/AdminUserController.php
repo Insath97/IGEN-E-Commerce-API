@@ -244,7 +244,7 @@ class AdminUserController extends Controller implements HasMiddleware
 
             if (isset($data['role'])) {
                 $role = Role::where('name', $data['role'])->first();
-                if ($role->name === 'Super Admin' && !$currentUser->isSuperAdmin()) {
+                if ($role->name === 'Super Admin' && !$currentUser->hasRole('Super Admin')) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Only Super Admins can assign Super Admin role'
