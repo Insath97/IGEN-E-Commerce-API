@@ -4,12 +4,16 @@ namespace App\Http\Controllers\V1\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerRegistrationRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\UpdateCustomerProfileRequest;
 use App\Mail\CustomerWelcomeMail;
+use App\Mail\ForgotPasswordMail;
 use App\Models\Customer;
 use App\Models\SocialAccount;
 use App\Models\User;
 use App\Traits\FileUploadTrait;
+use App\Traits\LogsActivity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +26,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    use FileUploadTrait;
+    use FileUploadTrait, LogsActivity;
 
     /**
      * Customer Registration with Email Verification
@@ -554,5 +558,83 @@ class AuthController extends Controller
 
         $socialAccount->delete();
         return response()->json(['success' => true, 'message' => 'Google account unlinked successfully']);
+    }
+    /**
+     * Forgot Password - Send reset link
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        try {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
+
+            $token = $user->generatePasswordResetToken();
+            $resetUrl = config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+
+            Mail::to($user->email)->send(new ForgotPasswordMail($user->name, $resetUrl));
+
+            $this->logActivity(
+                'Auth',
+                'Forgot Password Request',
+                'Password reset link sent to ' . $user->email,
+                ['email' => $user->email]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset link has been sent to your email address.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send reset link',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset Password
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
+
+            if (!$user->isPasswordResetTokenValid($request->token)) {
+                return response()->json(['success' => false, 'message' => 'Invalid or expired reset token.'], 400);
+            }
+
+            $user->markPasswordAsReset($request->password);
+
+            $this->logActivity(
+                'Auth',
+                'Reset Password',
+                'Password reset successful for ' . $user->email,
+                ['email' => $user->email]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password has been reset successfully. You can now login with your new password.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset password',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
     }
 }

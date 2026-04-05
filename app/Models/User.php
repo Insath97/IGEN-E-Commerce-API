@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
@@ -34,6 +35,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email_verified_at',
         'email_verification_token',
         'email_verification_token_expires_at',
+        'password_reset_token',
+        'password_reset_token_expires_at',
         'google_id',
         'auth_provider'
     ];
@@ -58,6 +61,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'email_verification_token_expires_at' => 'datetime',
+            'password_reset_token_expires_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
@@ -180,6 +184,49 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function hasVerifiedEmail(): bool
     {
         return !is_null($this->email_verified_at);
+    }
+
+    /**
+     * Generate a unique password reset token
+     */
+    public function generatePasswordResetToken(): string
+    {
+        $token = bin2hex(random_bytes(32));
+
+        $this->update([
+            'password_reset_token' => $token,
+            'password_reset_token_expires_at' => now()->addHours(1)
+        ]);
+
+        return $token;
+    }
+
+    /**
+     * Check if the password reset token is valid
+     */
+    public function isPasswordResetTokenValid(string $token): bool
+    {
+        if ($this->password_reset_token !== $token) {
+            return false;
+        }
+
+        if (!$this->password_reset_token_expires_at) {
+            return false;
+        }
+
+        return now()->lessThan($this->password_reset_token_expires_at);
+    }
+
+    /**
+     * Reset the user's password and clear the token
+     */
+    public function markPasswordAsReset(string $newPassword)
+    {
+        $this->update([
+            'password' => Hash::make($newPassword),
+            'password_reset_token' => null,
+            'password_reset_token_expires_at' => null
+        ]);
     }
 
     public function socialAccounts()

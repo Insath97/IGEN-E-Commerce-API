@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:auth');
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:auth');
 });
 
 // Protected admin routes

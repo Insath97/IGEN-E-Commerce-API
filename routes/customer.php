@@ -20,6 +20,8 @@ Route::prefix('v1/customer')->group(function () {
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
     Route::post('auth/google/login', [AuthController::class, 'googleLogin']);
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:auth');
+    Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:auth');
 
     Route::post('add', [CartController::class, 'addToCart']);
 });

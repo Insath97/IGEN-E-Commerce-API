@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Mail\ForgotPasswordMail;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -184,6 +190,93 @@ class AuthController extends Controller
                 'status' => 'error',
                 'message' => 'Failed to fetch user details',
                 'error' => config('app.debug') ? $th->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+    /**
+     * Admin Forgot Password - Send reset link
+     */
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        try {
+            $user = User::where('email', $request->email)->where('user_type', 'admin')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Admin account not found with this email.'
+                ], 404);
+            }
+
+            $token = $user->generatePasswordResetToken();
+            $resetUrl = config('app.admin_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+
+            Mail::to($user->email)->send(new ForgotPasswordMail($user->name, $resetUrl));
+
+            $this->logActivity(
+                'Auth',
+                'Admin Forgot Password Request',
+                'Password reset link sent to admin: ' . $user->email,
+                ['email' => $user->email]
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password reset link has been sent to your admin email.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send reset link',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin Reset Password
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::where('email', $request->email)->where('user_type', 'admin')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Admin account not found.'
+                ], 404);
+            }
+
+            if (!$user->isPasswordResetTokenValid($request->token)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid or expired reset token.'
+                ], 400);
+            }
+
+            $user->markPasswordAsReset($request->password);
+
+            $this->logActivity(
+                'Auth',
+                'Admin Reset Password',
+                'Admin password reset successful for: ' . $user->email,
+                ['email' => $user->email]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Admin password has been reset successfully. You can now login to the admin panel.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to reset admin password',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

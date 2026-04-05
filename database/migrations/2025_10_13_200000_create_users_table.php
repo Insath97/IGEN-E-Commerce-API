@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -28,6 +27,8 @@ return new class extends Migration
             $table->timestamp('email_verification_token_expires_at')->nullable();
             $table->string('google_id')->nullable();
             $table->string('auth_provider')->nullable();
+            $table->string('password_reset_token')->nullable();
+            $table->timestamp('password_reset_token_expires_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
