@@ -32,7 +32,7 @@ class CmsContent extends Model
     public static function getStructuredPageContent(string $page)
     {
         $contents = self::where('page', $page)->get();
-        
+
         $structured = [];
         foreach ($contents as $content) {
             $structured[$content->section][$content->key] = $content->value;
