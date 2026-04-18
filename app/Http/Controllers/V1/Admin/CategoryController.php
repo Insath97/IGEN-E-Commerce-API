@@ -30,7 +30,7 @@ class CategoryController extends Controller implements HasMiddleware
             new Middleware('permission:Category Featured', only: ['toggleFeatured']),
         ];
     }
-    
+
     public function index(Request $request)
     {
         try {
@@ -86,7 +86,9 @@ class CategoryController extends Controller implements HasMiddleware
         }
     }
 
-    public function create() {}
+    public function create()
+    {
+    }
 
     public function store(CeateCategoryrequest $request)
     {
@@ -145,9 +147,11 @@ class CategoryController extends Controller implements HasMiddleware
         }
     }
 
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
-    public function update(UpdateCategoryrequest  $request, string $id)
+    public function update(UpdateCategoryrequest $request, string $id)
     {
         try {
             $category = Category::find($id);

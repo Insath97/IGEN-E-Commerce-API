@@ -68,9 +68,11 @@ class AdminUserController extends Controller implements HasMiddleware
             }
             $query->where('user_type', 'admin');
             $query->orderBy('created_at', 'desc');
-            $query->with(['roles' => function ($q) {
-                $q->select('id', 'name');
-            }]);
+            $query->with([
+                'roles' => function ($q) {
+                    $q->select('id', 'name');
+                }
+            ]);
 
             $users = $query->paginate($perPage);
 
@@ -107,7 +109,9 @@ class AdminUserController extends Controller implements HasMiddleware
         }
     }
 
-    public function create() {}
+    public function create()
+    {
+    }
 
     public function store(CreateUserRequest $request)
     {
@@ -154,9 +158,11 @@ class AdminUserController extends Controller implements HasMiddleware
                 Log::error('Failed to prepare user creation email data: ' . $th->getMessage());
             }
 
-            $user->load(['roles' => function ($q) {
-                $q->select('id', 'name');
-            }]);
+            $user->load([
+                'roles' => function ($q) {
+                    $q->select('id', 'name');
+                }
+            ]);
 
             $this->logActivity('Admin User', 'Create', "Created admin user: {$user->email}", $data);
 
@@ -190,9 +196,11 @@ class AdminUserController extends Controller implements HasMiddleware
         try {
             $currentUser = auth('api')->user();
 
-            $user = User::with(['roles' => function ($q) {
-                $q->select('id', 'name');
-            }])->find($id);
+            $user = User::with([
+                'roles' => function ($q) {
+                    $q->select('id', 'name');
+                }
+            ])->find($id);
 
             if (!$user) {
                 return response()->json([
@@ -224,7 +232,9 @@ class AdminUserController extends Controller implements HasMiddleware
         }
     }
 
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
     public function update(UpdateUserRequest $request, string $id)
     {
@@ -276,9 +286,11 @@ class AdminUserController extends Controller implements HasMiddleware
 
             $this->logActivity('Admin User', 'Update', "Updated admin user: {$user->email}", $data);
 
-            $user->load(['roles' => function ($q) {
-                $q->select('id', 'name');
-            }]);
+            $user->load([
+                'roles' => function ($q) {
+                    $q->select('id', 'name');
+                }
+            ]);
 
             $userData = $user->toArray();
             if (isset($userData['roles'])) {

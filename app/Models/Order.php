@@ -178,6 +178,7 @@ class Order extends Model
                     'tracking_number' => $data['tracking_number'],
                     'shipped_at' => now(),
                     'estimated_delivery_at' => $data['estimated_delivery_at'] ?? null,
+                    'shipping_cost' => $data['shipping_cost'] ?? 0,
                     'shipping_notes' => $data['shipping_notes'] ?? null,
                 ]
             );

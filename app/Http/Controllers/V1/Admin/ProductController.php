@@ -131,7 +131,9 @@ class ProductController extends Controller implements HasMiddleware
         }
     }
 
-    public function create() {}
+    public function create()
+    {
+    }
 
     public function store(CeateProductrequest $request)
     {
@@ -345,7 +347,9 @@ class ProductController extends Controller implements HasMiddleware
         }
     }
 
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
     public function update(UpdateProductrequest $request, string $id)
     {

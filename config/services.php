@@ -41,4 +41,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
+
 ];

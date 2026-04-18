@@ -180,6 +180,7 @@ class OrderController extends Controller implements HasMiddleware
                     'courier_phone' => $data['courier_phone'] ?? null,
                     'tracking_number' => $data['tracking_number'],
                     'estimated_delivery_at' => $data['estimated_delivery_at'] ?? null,
+                    'shipping_cost' => $data['shipping_cost'] ?? 0,
                     'shipping_notes' => $data['shipping_notes'] ?? null,
                 ]);
             } else {

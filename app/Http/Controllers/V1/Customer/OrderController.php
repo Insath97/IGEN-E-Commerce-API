@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use App\Notifications\LowStockNotification;
 use App\Notifications\NewOrderTelegramNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Services\TelegramService;
 
 class OrderController extends Controller
 {
@@ -255,10 +256,18 @@ class OrderController extends Controller
                         $lowStockAlertEnabled = Setting::getValue('low_stock_alert_enabled', '1') == '1';
                         if ($lowStockAlertEnabled && $checkoutItem->variant->isLowStock()) {
                             $adminEmail = Setting::getValue('order_notification_email', 'admin@gmail.com');
-                            Notification::route('mail', $adminEmail)
-                                ->route('database', '') // Can be empty if we just want it in DB for anybody, but usually we'd notify a user object
-                                ->notify(new LowStockNotification($checkoutItem->variant));
-                            
+                            $telegramBotToken = env('TELEGRAM_BOT_TOKEN');
+                            $telegramChatId = env('TELEGRAM_CHAT_ID');
+
+                            $notificationRequest = Notification::route('mail', $adminEmail)
+                                ->route('database', '');
+
+                            if ($telegramBotToken && $telegramChatId) {
+                                TelegramService::sendLowStockAlert($checkoutItem->variant, $telegramChatId);
+                            }
+
+                            $notificationRequest->notify(new LowStockNotification($checkoutItem->variant));
+
                             Log::info('Low stock alert triggered for variant: ' . $checkoutItem->variant->sku);
                         }
                     } catch (\Exception $e) {
@@ -307,7 +316,7 @@ class OrderController extends Controller
                 $isNotificationEnabled = Setting::getValue('order_notification_enabled', '1') == '1';
                 if ($isNotificationEnabled) {
                     $recipientEmail = Setting::getValue('order_notification_email', 'admin@gmail.com');
-                    
+
                     // 1. Send Email
                     Mail::to($recipientEmail)->send(new AdminOrderNotificationMail($order));
                     Log::info('Admin order email notification sent for order ID: ' . $order->id);
@@ -317,8 +326,7 @@ class OrderController extends Controller
                     $telegramChatId = env('TELEGRAM_CHAT_ID');
 
                     if ($telegramBotToken && $telegramChatId) {
-                        Notification::route('telegram', $telegramChatId)
-                            ->notify(new NewOrderTelegramNotification($order));
+                        TelegramService::sendNewOrderAlert($order, $telegramChatId);
                         Log::info('Admin order telegram notification sent for order ID: ' . $order->id);
                     } else {
                         Log::warning('Telegram notification skipped: credentials not found in .env');

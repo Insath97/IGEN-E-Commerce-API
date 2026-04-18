@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Telegram\TelegramChannel;
+use NotificationChannels\Telegram\TelegramMessage;
 
 class LowStockNotification extends Notification implements ShouldQueue
 {
@@ -19,7 +21,7 @@ class LowStockNotification extends Notification implements ShouldQueue
      */
     public function __construct(ProductVariant $variant)
     {
-        $this->variant = $variant->load('product');
+        $this->variant = $variant->relationLoaded('product') ? $variant : $variant->loadMissing('product');
     }
 
     /**
@@ -29,7 +31,7 @@ class LowStockNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', TelegramChannel::class];
     }
 
     /**
@@ -66,5 +68,28 @@ class LowStockNotification extends Notification implements ShouldQueue
             'threshold' => $this->variant->low_stock_threshold,
             'message' => 'Low stock for product: ' . $this->variant->product->name . ($this->variant->variant_name ? ' (' . $this->variant->variant_name . ')' : ''),
         ];
+    }
+
+    /**
+     * Get the telegram representation of the notification.
+     */
+    public function toTelegram($notifiable)
+    {
+        $productName = $this->variant->product->name;
+        $variantName = $this->variant->variant_name ? " ({$this->variant->variant_name})" : "";
+        $currentStock = $this->variant->stock_quantity;
+        $threshold = $this->variant->low_stock_threshold;
+        $sku = $this->variant->sku ?? 'N/A';
+        
+        $adminProductUrl = config('app.url') . '/admin/products/' . $this->variant->product_id;
+
+        return TelegramMessage::create()
+            ->content("⚠️ *Low Stock Alert!*\n\n")
+            ->line("*Product:* {$productName}{$variantName}")
+            ->line("*SKU:* `{$sku}`")
+            ->line("*Current Stock:* {$currentStock}")
+            ->line("*Low Stock Threshold:* {$threshold}")
+            ->line("\n_Please restock this item soon._")
+            ->button('View Product in Admin', $adminProductUrl);
     }
 }

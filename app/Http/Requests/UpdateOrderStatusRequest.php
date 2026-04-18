@@ -23,6 +23,7 @@ class UpdateOrderStatusRequest extends FormRequest
             'courier_phone' => 'nullable|string|max:20',
             'tracking_number' => 'required_if:order_status,shipped|nullable|string|max:255',
             'estimated_delivery_at' => 'nullable|date',
+            'shipping_cost' => 'nullable|numeric|min:0',
             'shipping_notes' => 'nullable|string|max:500',
         ];
     }

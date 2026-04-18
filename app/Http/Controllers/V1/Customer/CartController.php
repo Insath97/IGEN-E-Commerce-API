@@ -188,11 +188,13 @@ class CartController extends Controller
             }
 
             // Check stock availability for new quantity
-            if (!$this->checkStockAvailability(
-                $cartItem->product,
-                $cartItem->variant,
-                $request->quantity
-            )) {
+            if (
+                !$this->checkStockAvailability(
+                    $cartItem->product,
+                    $cartItem->variant,
+                    $request->quantity
+                )
+            ) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Insufficient stock available',

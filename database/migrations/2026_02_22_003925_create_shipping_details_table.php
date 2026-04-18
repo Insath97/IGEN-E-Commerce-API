@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,6 +18,7 @@ return new class extends Migration
             $table->string('tracking_number');
             $table->timestamp('shipped_at');
             $table->timestamp('estimated_delivery_at')->nullable();
+            $table->decimal('shipping_cost', 10, 2)->default(0);
             $table->text('shipping_notes')->nullable();
             $table->timestamps();
         });

@@ -94,7 +94,9 @@ class BrandController extends Controller implements HasMiddleware
         }
     }
 
-    public function create() {}
+    public function create()
+    {
+    }
 
     public function store(CreateBrandrequest $request)
     {
@@ -162,7 +164,9 @@ class BrandController extends Controller implements HasMiddleware
         }
     }
 
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
     public function update(UpdateBrandrequest $request, string $id)
     {
@@ -239,7 +243,7 @@ class BrandController extends Controller implements HasMiddleware
         }
     }
 
-    public function  forceDestroy(string $id)
+    public function forceDestroy(string $id)
     {
         try {
             $brand = Brand::withTrashed()->find($id);

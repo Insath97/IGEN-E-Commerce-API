@@ -104,7 +104,7 @@ class ProductReviewController extends Controller
     public function getProductReviews($productId): JsonResponse
     {
         try {
-            $reviews = ProductReview::with(['user','product', 'variant', 'images'])
+            $reviews = ProductReview::with(['user', 'product', 'variant', 'images'])
                 ->where('product_id', $productId)
                 ->where('is_approved', true)
                 ->orderBy('created_at', 'desc')

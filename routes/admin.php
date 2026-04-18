@@ -17,6 +17,7 @@ use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\PermissionController;
 use App\Http\Controllers\V1\Admin\ActivityLogController;
 use App\Http\Controllers\V1\Admin\DashboardController;
+use App\Http\Controllers\V1\Admin\DatabaseBackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->group(function () {
@@ -157,5 +158,9 @@ Route::middleware(['auth:api', 'admin.auth'])->prefix('v1/admin')->group(functio
     Route::prefix('activity-logs')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index']);
         Route::get('{id}', [ActivityLogController::class, 'show']);
+    });
+
+    Route::prefix('system')->group(function () {
+        Route::get('database-export', [DatabaseBackupController::class, 'export']);
     });
 });

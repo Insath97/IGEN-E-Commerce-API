@@ -13,12 +13,14 @@ class ShippingDetail extends Model
         'tracking_number',
         'shipped_at',
         'estimated_delivery_at',
+        'shipping_cost',
         'shipping_notes',
     ];
 
     protected $casts = [
         'shipped_at' => 'datetime',
         'estimated_delivery_at' => 'datetime',
+        'shipping_cost' => 'decimal:2',
     ];
 
     public function order()
