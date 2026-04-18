@@ -44,7 +44,7 @@ class NewOrderTelegramNotification extends Notification implements ShouldQueue
         $paymentMethod = str_replace('_', ' ', ucfirst($this->order->latestPayment->payment_method ?? 'N/A'));
         
         // Construct the Admin URL
-        $adminOrderUrl = config('app.url') . '/admin/orders/' . $this->order->id;
+        $adminOrderUrl = config('app.admin_url') . '/admin/orders/' . $this->order->id;
 
         // Format items list
         $itemsList = "";

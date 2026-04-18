@@ -278,6 +278,12 @@ class OrderController extends Controller
 
             // Track coupon usage
             if ($checkoutSession->coupon_id) {
+                Log::info('Creating CouponUsage for Order: ' . $order->id, [
+                    'coupon_id' => $checkoutSession->coupon_id,
+                    'user_id' => $user->id,
+                    'discount_amount' => $checkoutSession->discount_amount,
+                    'order_amount' => $checkoutSession->subtotal
+                ]);
                 CouponUsage::create([
                     'coupon_id' => $checkoutSession->coupon_id,
                     'user_id' => $user->id,

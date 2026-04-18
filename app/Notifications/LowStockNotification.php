@@ -81,7 +81,7 @@ class LowStockNotification extends Notification implements ShouldQueue
         $threshold = $this->variant->low_stock_threshold;
         $sku = $this->variant->sku ?? 'N/A';
         
-        $adminProductUrl = config('app.url') . '/admin/products/' . $this->variant->product_id;
+        $adminProductUrl = config('app.admin_url') . '/admin/products/' . $this->variant->product_id;
 
         return TelegramMessage::create()
             ->content("⚠️ *Low Stock Alert!*\n\n")

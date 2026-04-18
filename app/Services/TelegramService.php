@@ -80,30 +80,16 @@ class TelegramService
     public static function sendNewOrderAlert(Order $order, $chatId = null)
     {
         try {
-            $order->load(['user', 'customer', 'items', 'latestPayment']);
+            $chatId = $chatId ?? env('TELEGRAM_CHAT_ID');
             
-            $orderNumber = $order->order_number;
-            $customerName = $order->user->name ?? ($order->customer->name ?? 'Guest/Unknown');
-            $totalAmount = number_format($order->total_amount, 2);
-            $paymentMethod = str_replace('_', ' ', ucfirst($order->latestPayment->payment_method ?? 'N/A'));
-            $adminOrderUrl = config('app.url') . '/admin/orders/' . $order->id;
-
-            $itemsList = "";
-            foreach ($order->items as $item) {
-                $variantInfo = $item->variant_name ? " ({$item->variant_name})" : "";
-                $itemsList .= "• {$item->product_name}{$variantInfo}\n   _{$item->quantity} x LKR " . number_format($item->unit_price, 2) . "_\n";
+            if (!$chatId) {
+                Log::warning('TelegramService: No Chat ID provided for New Order alert.');
+                return;
             }
 
-            $message = "🚀 *New Order Placed!*\n\n"
-                     . "*Order #:* `{$orderNumber}`\n"
-                     . "*Customer:* {$customerName}\n\n"
-                     . "*Items:*\n{$itemsList}\n"
-                     . "*Total Amount:* LKR *{$totalAmount}*\n"
-                     . "*Payment Method:* {$paymentMethod}\n"
-                     . "*Status:* " . ucfirst($order->order_status) . "\n\n"
-                     . "[View Order in Admin]({$adminOrderUrl})";
-
-            self::sendMessage($message, $chatId);
+            // Use the notification class logic which supports buttons
+            Notification::route('telegram', $chatId)
+                ->notifyNow(new \App\Notifications\NewOrderTelegramNotification($order));
 
         } catch (\Exception $e) {
             Log::error('TelegramService Order Alert Error: ' . $e->getMessage());
@@ -120,20 +106,12 @@ class TelegramService
     public static function sendLowStockAlert(ProductVariant $variant, $chatId = null)
     {
         try {
-            $variant->loadMissing('product');
             $chatId = $chatId ?? env('TELEGRAM_CHAT_ID');
 
             if (!$chatId) return;
 
             Notification::route('telegram', $chatId)
-                ->notifyNow(new class($variant) extends \Illuminate\Notifications\Notification {
-                    protected $v;
-                    public function __construct($v) { $this->v = $v; }
-                    public function via($notifiable) { return [\NotificationChannels\Telegram\TelegramChannel::class]; }
-                    public function toTelegram($notifiable) {
-                        return \App\Services\TelegramService::getLowStockMessage($this->v);
-                    }
-                });
+                ->notifyNow(new \App\Notifications\LowStockNotification($variant));
 
         } catch (\Exception $e) {
             Log::error('TelegramService Low Stock Alert Error: ' . $e->getMessage());
