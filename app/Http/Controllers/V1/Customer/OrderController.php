@@ -282,6 +282,9 @@ class OrderController extends Controller
                     'coupon_id' => $checkoutSession->coupon_id,
                     'user_id' => $user->id,
                     'order_id' => $order->id,
+                    'discount_amount' => $checkoutSession->discount_amount,
+                    'order_amount' => $checkoutSession->subtotal,
+                    'used_at' => now(),
                 ]);
 
                 // Increment coupon used count
