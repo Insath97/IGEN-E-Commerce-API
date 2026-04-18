@@ -55,11 +55,11 @@ class ProductController extends Controller implements HasMiddleware
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
                 'variants',
-                'features:id,name',
+                'features' => fn($q) => $q->select('features.id', 'features.name'),
                 'specifications:id,product_id,specification_name,specification_value',
-                'tags:id,name,slug',
-                'compatibleProducts:id,name,primary_image_path',
-                'bundledProducts:id,name,primary_image_path',
+                'tags' => fn($q) => $q->select('tags.id', 'tags.name', 'tags.slug'),
+                'compatibleProducts' => fn($q) => $q->select('products.id', 'products.name', 'products.primary_image_path'),
+                'bundledProducts' => fn($q) => $q->select('products.id', 'products.name', 'products.primary_image_path'),
                 'creator:id,name,email'
             ]);
 
@@ -317,11 +317,11 @@ class ProductController extends Controller implements HasMiddleware
                 'brand:id,name,slug,logo,website',
                 'images:id,product_id,image_path',
                 'variants',
-                'features:id,name',
+                'features' => fn($q) => $q->select('features.id', 'features.name'),
                 'specifications:id,product_id,specification_name,specification_value',
-                'tags:id,name,slug',
-                'compatibleProducts:id,name,primary_image_path',
-                'bundledProducts:id,name,primary_image_path',
+                'tags' => fn($q) => $q->select('tags.id', 'tags.name', 'tags.slug'),
+                'compatibleProducts' => fn($q) => $q->select('products.id', 'products.name', 'products.primary_image_path'),
+                'bundledProducts' => fn($q) => $q->select('products.id', 'products.name', 'products.primary_image_path'),
                 'creator:id,name,email'
             ])->find($id);
 
